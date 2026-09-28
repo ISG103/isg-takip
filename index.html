@@ -64,6 +64,22 @@
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.88rem; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .hidden { display: none !important; }
+
+    /* SINIF KARTLARI */
+    .class-card {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .class-card:hover { border-color: var(--brand-blue); background: #f8fafc; }
+    .class-card.selected { border-color: var(--brand-blue); background: #eff6ff; }
   </style>
 </head>
 <body>
@@ -78,11 +94,15 @@
       <li class="nav-item active" onclick="switchNav('personel', this)"><i class="fa-solid fa-users"></i> Personel & Muayene Takibi</li>
       <li class="nav-item" onclick="switchNav('sertifika', this)"><i class="fa-solid fa-award"></i> İlk Yardım & MYK Belgeleri</li>
       <li class="nav-item" onclick="switchNav('kkd', this)"><i class="fa-solid fa-vest"></i> KKD Zimmet Takibi</li>
+      
       <div class="nav-category">SAHA GÜVENLİĞİ</div>
       <li class="nav-item" onclick="switchNav('dof', this)"><i class="fa-solid fa-clipboard-check"></i> Saha Denetimi & DÖF</li>
       <li class="nav-item" onclick="switchNav('izin', this)"><i class="fa-solid fa-file-signature"></i> Özel İş İzinleri (PTW)</li>
       <li class="nav-item" onclick="switchNav('kazalar', this)"><i class="fa-solid fa-triangle-exclamation"></i> İş Kazası Defteri</li>
-      <div class="nav-category">YASAL MEVZUAT & ORANLAR</div>
+
+      <div class="nav-category">YASAL AYARLAR & MEVZUAT</div>
+      <!-- YENİ İSG SINIFLARI SEKMESİ -->
+      <li class="nav-item" onclick="switchNav('siniflar', this)" style="color:#38bdf8; font-weight:700;"><i class="fa-solid fa-sliders"></i> İSG Sınıf Ayarları</li>
       <li class="nav-item" onclick="switchNav('istatistik', this)"><i class="fa-solid fa-calculator"></i> SGK Kaza Oranları Motoru</li>
     </ul>
   </aside>
@@ -90,7 +110,7 @@
     <header>
       <div>
         <h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2>
-        <div class="plant-badge"><i class="fa-solid fa-shield-halved"></i> Fabrika Sınıfı: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
+        <div class="plant-badge" id="headerBadge"><i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
       </div>
       <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
     </header>
@@ -115,7 +135,6 @@
                 <th>Ad Soyad</th>
                 <th>Bölüm / İstasyon</th>
                 <th>Görevi / Pozisyon</th>
-                <th>Tehlike Sınıfı</th>
                 <th>İşe Başlama</th>
                 <th>İSG Eğitimi Bitiş</th>
                 <th>Periyodik Muayene Bitiş</th>
@@ -127,7 +146,61 @@
         </div>
       </section>
 
-      <!-- 2. SERTİFİKA -->
+      <!-- 2. İSG SINIFLARI SEKMESİ (KULLANICININ KENDİ YÖNETECEĞİ PANEL) -->
+      <section id="sec-siniflar" class="hidden">
+        <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:700px;">
+          <h3 style="margin-bottom:6px; font-size:1.15rem; color:#0f172a;"><i class="fa-solid fa-sliders" style="color:var(--brand-blue);"></i> Fabrika İSG Tehlike Sınıfı Seçimi</h3>
+          <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">Buradan fabrikanız için geçerli olan sınıfı seçin. Yeni personel kaydında eğitim ve sağlık süreleri otomatik olarak buna göre hesaplanır.</p>
+
+          <div class="class-card selected" id="card_tehlikeli" onclick="sinifSec('tehlikeli')">
+            <div>
+              <div style="font-weight:700; color:#b45309; font-size:1rem;"><i class="fa-solid fa-triangle-exclamation"></i> TEHLİKELİ SINIF (Varsayılan)</div>
+              <div style="font-size:0.84rem; color:#475569; margin-top:4px;">İSG Eğitimi: <strong>2 Yılda 1 (12 Saat)</strong> | Periyodik Sağlık: <strong>3 Yılda 1</strong></div>
+            </div>
+            <i class="fa-solid fa-circle-check" id="check_tehlikeli" style="color:var(--brand-blue); font-size:1.3rem;"></i>
+          </div>
+
+          <div class="class-card" id="card_cok_tehlikeli" onclick="sinifSec('cok_tehlikeli')">
+            <div>
+              <div style="font-weight:700; color:#dc2626; font-size:1rem;"><i class="fa-solid fa-radiation"></i> ÇOK TEHLİKELİ SINIF</div>
+              <div style="font-size:0.84rem; color:#475569; margin-top:4px;">İSG Eğitimi: <strong>1 Yılda 1 (16 Saat)</strong> | Periyodik Sağlık: <strong>1 Yılda 1</strong></div>
+            </div>
+            <i class="fa-regular fa-circle" id="check_cok_tehlikeli" style="color:#cbd5e1; font-size:1.3rem;"></i>
+          </div>
+
+          <div class="class-card" id="card_az_tehlikeli" onclick="sinifSec('az_tehlikeli')">
+            <div>
+              <div style="font-weight:700; color:#16a34a; font-size:1rem;"><i class="fa-solid fa-circle-check"></i> AZ TEHLİKELİ SINIF</div>
+              <div style="font-size:0.84rem; color:#475569; margin-top:4px;">İSG Eğitimi: <strong>3 Yılda 1 (8 Saat)</strong> | Periyodik Sağlık: <strong>5 Yılda 1</strong></div>
+            </div>
+            <i class="fa-regular fa-circle" id="check_az_tehlikeli" style="color:#cbd5e1; font-size:1.3rem;"></i>
+          </div>
+
+          <div class="class-card" id="card_ozel" onclick="sinifSec('ozel')">
+            <div style="width:100%;">
+              <div style="font-weight:700; color:#0284c7; font-size:1rem;"><i class="fa-solid fa-pen-ruler"></i> ÖZEL / FABRİKAYA ÖZEL PERİYOT</div>
+              <div style="font-size:0.84rem; color:#475569; margin-top:4px;">Süreleri kendiniz belirleyin:</div>
+              <div style="display:flex; gap:12px; margin-top:8px;">
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; font-weight:600;">Eğitim Kaç Yılda Bir?</label>
+                  <input type="number" id="ozel_egitim_yil" value="2" min="1" max="10" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px; width:100%;">
+                </div>
+                <div style="flex:1;">
+                  <label style="font-size:0.75rem; font-weight:600;">Muayene Kaç Yılda Bir?</label>
+                  <input type="number" id="ozel_saglik_yil" value="3" min="1" max="10" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px; width:100%;">
+                </div>
+              </div>
+            </div>
+            <i class="fa-regular fa-circle" id="check_ozel" style="color:#cbd5e1; font-size:1.3rem; margin-left:12px;"></i>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top:14px; width:100%; justify-content:center;" onclick="sinifAyariKaydet()">
+            <i class="fa-solid fa-floppy-disk"></i> Seçilen Sınıfı Aktif Yap ve Kaydet
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. SERTİFİKA -->
       <section id="sec-sertifika" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-sertifika')"><i class="fa-solid fa-plus"></i> Belge Ekle</button>
@@ -140,7 +213,7 @@
         </div>
       </section>
 
-      <!-- 3. KKD -->
+      <!-- 4. KKD -->
       <section id="sec-kkd" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-kkd')"><i class="fa-solid fa-plus"></i> KKD Zimmetle</button>
@@ -153,7 +226,7 @@
         </div>
       </section>
 
-      <!-- 4. DÖF -->
+      <!-- 5. DÖF -->
       <section id="sec-dof" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button>
@@ -166,7 +239,7 @@
         </div>
       </section>
 
-      <!-- 5. İŞ İZNİ -->
+      <!-- 6. İŞ İZNİ -->
       <section id="sec-izin" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button>
@@ -179,7 +252,7 @@
         </div>
       </section>
 
-      <!-- 6. KAZALAR -->
+      <!-- 7. KAZALAR -->
       <section id="sec-kazalar" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button>
@@ -192,7 +265,7 @@
         </div>
       </section>
 
-      <!-- 7. YASAL İSTATİSTİK MOTORU -->
+      <!-- 8. YASAL İSTATİSTİK -->
       <section id="sec-istatistik" class="hidden">
         <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:650px;">
           <h3 style="margin-bottom:12px; font-size:1.1rem; color:#0f172a;"><i class="fa-solid fa-calculator" style="color:var(--brand-blue);"></i> SGK / Bakanlık Resmi Kaza Oranları</h3>
@@ -217,10 +290,10 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL (KULLANICI SEÇİMLİ VE TEHLİKELİ SINIFLI) -->
+  <!-- MODAL: PERSONEL -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
-      <div class="modal-header"><h3>Yeni Personel ve Yasal Takip</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
+      <div class="modal-header"><h3>Yeni Personel Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
       <div class="form-group"><label>Adı Soyadı</label><input type="text" id="p_ad" placeholder="Ad Soyad giriniz"></div>
       <div class="form-group">
         <label>Fabrika Bölümü / İstasyon</label>
@@ -235,21 +308,9 @@
         </select>
       </div>
       <div class="form-group"><label>Görevi / Pozisyonu</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen"></div>
-      
-      <!-- KULLANICININ KENDİ SEÇECEĞİ TEHLİKE SINIFI KUTUSU -->
-      <div class="form-group">
-        <label style="color:#0284c7; font-weight:700;"><i class="fa-solid fa-sliders"></i> Personel Tehlike Sınıfı Seçimi</label>
-        <select id="p_sinif" onchange="otomatikTarihHesapla()" style="border:1.5px solid #0284c7; font-weight:600;">
-          <option value="tehlikeli" selected>Tehlikeli Sınıf (Eğitim: 2 Yıl / Muayene: 3 Yıl)</option>
-          <option value="cok_tehlikeli">Çok Tehlikeli Sınıf (Eğitim: 1 Yıl / Muayene: 1 Yıl)</option>
-          <option value="az_tehlikeli">Az Tehlikeli Sınıf (Eğitim: 3 Yıl / Muayene: 5 Yıl)</option>
-          <option value="manuel">Özel / Manuel Giriş (Süreleri Elle Belirleyeceğim)</option>
-        </select>
-      </div>
-
       <div class="form-group"><label>İşe Başlama Tarihi</label><input type="date" id="p_ise_baslama"></div>
       
-      <!-- OTOMATİK HESAPLAYAN / İSTERSEN DEĞİŞTİREBİLECEĞİN TARİH KUTULARI -->
+      <!-- HESAPLAYICI -->
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
         <div class="form-group">
           <label>Son Yapılan İSG Eğitimi Tarihi</label>
@@ -341,7 +402,14 @@
       dof: JSON.parse(localStorage.getItem('isg_dof')) || [],
       izin: JSON.parse(localStorage.getItem('isg_izin')) || [],
       k: JSON.parse(localStorage.getItem('isg_k')) || [],
-      kkd: JSON.parse(localStorage.getItem('isg_kkd')) || []
+      kkd: JSON.parse(localStorage.getItem('isg_kkd')) || [],
+      // KULLANICININ SEÇTİĞİ AKTİF SINIF AYARI
+      ayar: JSON.parse(localStorage.getItem('isg_ayar')) || {
+        sinif: 'tehlikeli',
+        egitimYil: 2,
+        saglikYil: 3,
+        baslik: 'TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)'
+      }
     };
 
     function sync() {
@@ -356,41 +424,77 @@
     function switchNav(target, elem) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       elem.classList.add('active');
-      ['personel', 'sertifika', 'kkd', 'dof', 'izin', 'kazalar', 'istatistik'].forEach(s => {
+      ['personel', 'siniflar', 'sertifika', 'kkd', 'dof', 'izin', 'kazalar', 'istatistik'].forEach(s => {
         const el = document.getElementById('sec-' + s);
         if(el) el.classList.add('hidden');
       });
       document.getElementById('sec-' + target).classList.remove('hidden');
+
+      const titles = {
+        personel: 'Personel Eğitim & Sağlık İzleme',
+        siniflar: 'İSG Tehlike Sınıfı ve Periyot Ayarları',
+        sertifika: 'İlk Yardımcı, MYK ve Sertifika Yönetimi',
+        kkd: 'KKD Zimmet Takibi',
+        dof: 'DÖF & Saha Denetimi',
+        izin: 'Özel İş İzinleri (PTW)',
+        kazalar: 'İş Kazaları Defteri',
+        istatistik: 'SGK Kaza Oranları Motoru'
+      };
+      document.getElementById('pageTitle').innerText = titles[target] || 'İSG Sistemi';
     }
 
-    // KULLANICI SEÇİMLİ VE TEHLİKELİ SINIF ODAKLI TARİH MOTORU
-    function otomatikTarihHesapla() {
-      const sinif = document.getElementById('p_sinif').value;
-      if(sinif === 'manuel') return; // Kullanıcı kendisi elle yazmak isterse otomatik dokunmaz
+    // SINIF SEÇME PANELİ AKSİYONLARI
+    let geciciSecim = db.ayar.sinif;
 
+    function sinifSec(sinifKey) {
+      geciciSecim = sinifKey;
+      ['tehlikeli', 'cok_tehlikeli', 'az_tehlikeli', 'ozel'].forEach(k => {
+        document.getElementById('card_' + k).classList.remove('selected');
+        document.getElementById('check_' + k).className = 'fa-regular fa-circle';
+        document.getElementById('check_' + k).style.color = '#cbd5e1';
+      });
+
+      document.getElementById('card_' + sinifKey).classList.add('selected');
+      document.getElementById('check_' + sinifKey).className = 'fa-solid fa-circle-check';
+      document.getElementById('check_' + sinifKey).style.color = '#0284c7';
+    }
+
+    function sinifAyariKaydet() {
+      if(geciciSecim === 'tehlikeli') {
+        db.ayar = { sinif: 'tehlikeli', egitimYil: 2, saglikYil: 3, baslik: 'TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)' };
+      } else if(geciciSecim === 'cok_tehlikeli') {
+        db.ayar = { sinif: 'cok_tehlikeli', egitimYil: 1, saglikYil: 1, baslik: 'ÇOK TEHLİKELİ (Eğitim: 1 Yıl / Muayene: 1 Yıl)' };
+      } else if(geciciSecim === 'az_tehlikeli') {
+        db.ayar = { sinif: 'az_tehlikeli', egitimYil: 3, saglikYil: 5, baslik: 'AZ TEHLİKELİ (Eğitim: 3 Yıl / Muayene: 5 Yıl)' };
+      } else if(geciciSecim === 'ozel') {
+        const ey = parseInt(document.getElementById('ozel_egitim_yil').value) || 1;
+        const sy = parseInt(document.getElementById('ozel_saglik_yil').value) || 1;
+        db.ayar = { sinif: 'ozel', egitimYil: ey, saglikYil: sy, baslik: `ÖZEL AYAR (Eğitim: ${ey} Yıl / Muayene: ${sy} Yıl)` };
+      }
+
+      sync();
+      updateHeaderBadge();
+      alert(`Fabrika aktif sınıfı başarıyla güncellendi:\n${db.ayar.baslik}`);
+    }
+
+    function updateHeaderBadge() {
+      document.getElementById('headerBadge').innerHTML = `<i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: ${db.ayar.baslik}`;
+    }
+
+    // PERSONEL EKLEMEDE OTOMATİK TARİH HESABI
+    function otomatikTarihHesapla() {
       const egitimYapilis = document.getElementById('p_egitim_yapilis').value;
       const saglikYapilis = document.getElementById('p_saglik_yapilis').value;
 
-      let egitimYil = 2; // Tehlikeli varsayılan: 2 yıl
-      let saglikYil = 3; // Tehlikeli varsayılan: 3 yıl
-
-      if(sinif === 'cok_tehlikeli') {
-        egitimYil = 1;
-        saglikYil = 1;
-      } else if(sinif === 'az_tehlikeli') {
-        egitimYil = 3;
-        saglikYil = 5;
-      }
-
       if(egitimYapilis) {
         let d = new Date(egitimYapilis);
-        d.setFullYear(d.getFullYear() + egitimYil);
+        d.setFullYear(d.getFullYear() + db.ayar.egitimYil);
         document.getElementById('p_egitim').value = d.toISOString().slice(0, 10);
       }
 
       if(saglikYapilis) {
         let d = new Date(saglikYapilis);
-        d.setFullYear(d.getFullYear() + saglikYil);
+        d.setFullYear(d.getFullYear() + db.ayar.saglikYil);
         document.getElementById('p_saglik').value = d.toISOString().slice(0, 10);
       }
     }
@@ -425,17 +529,10 @@
       db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q) || (x.gorev||'').toLowerCase().includes(q)).forEach(p => {
         const e = getStatus(p.egitim);
         const s = getStatus(p.saglik);
-        
-        let sinifLabel = 'Tehlikeli (2 Yıl/3 Yıl)';
-        if(p.sinif === 'cok_tehlikeli') sinifLabel = 'Çok Tehlikeli (1 Yıl)';
-        else if(p.sinif === 'az_tehlikeli') sinifLabel = 'Az Tehlikeli (3-5 Yıl)';
-        else if(p.sinif === 'manuel') sinifLabel = 'Özel / Manuel';
-
         tbody.innerHTML += `<tr>
           <td><strong>${p.ad}</strong></td>
           <td>${p.bolum||'-'}</td>
           <td>${p.gorev||'-'}</td>
-          <td><span style="font-size:11px; font-weight:700; color:#b45309;"><i class="fa-solid fa-tag"></i> ${sinifLabel}</span></td>
           <td>${p.ise_baslama||'-'}</td>
           <td><span class="badge ${e.cls}">${e.text}</span> <div style="font-size:10px; color:#64748b;">${p.egitim||''}</div></td>
           <td><span class="badge ${s.cls}">${s.text}</span> <div style="font-size:10px; color:#64748b;">${p.saglik||''}</div></td>
@@ -448,13 +545,12 @@
       const ad = document.getElementById('p_ad').value.trim();
       const bolum = document.getElementById('p_bolum').value;
       const gorev = document.getElementById('p_gorev').value.trim();
-      const sinif = document.getElementById('p_sinif').value;
       const ise_baslama = document.getElementById('p_ise_baslama').value;
       const egitim = document.getElementById('p_egitim').value;
       const saglik = document.getElementById('p_saglik').value;
       
       if(!ad) return alert("Personel adı girin.");
-      db.p.push({ id: Date.now(), ad, bolum, gorev, sinif, ise_baslama, egitim, saglik });
+      db.p.push({ id: Date.now(), ad, bolum, gorev, ise_baslama, egitim, saglik });
       sync(); personelCiz(); closeModal('modal-personel');
       document.getElementById('p_ad').value = '';
       document.getElementById('p_gorev').value = '';
@@ -578,6 +674,9 @@
       XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
     }
 
+    // BAŞLATMA
+    sinifSec(db.ayar.sinif);
+    updateHeaderBadge();
     personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
   </script>
 </body>
