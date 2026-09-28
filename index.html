@@ -33,7 +33,7 @@
     .nav-item i { width: 18px; text-align: center; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     header { background: white; padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .plant-badge { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+    .plant-badge { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
     .content { padding: 24px 28px; flex: 1; }
     .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
     .metric-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
@@ -90,7 +90,7 @@
     <header>
       <div>
         <h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2>
-        <div class="plant-badge"><i class="fa-solid fa-triangle-exclamation"></i> Fabrika Sınıfı: Tehlikeli / Çok Tehlikeli Sınıf (Yıllık Takip)</div>
+        <div class="plant-badge"><i class="fa-solid fa-shield-halved"></i> Fabrika Sınıfı: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
       </div>
       <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
     </header>
@@ -115,7 +115,7 @@
                 <th>Ad Soyad</th>
                 <th>Bölüm / İstasyon</th>
                 <th>Görevi / Pozisyon</th>
-                <th>Sınıfı</th>
+                <th>Tehlike Sınıfı</th>
                 <th>İşe Başlama</th>
                 <th>İSG Eğitimi Bitiş</th>
                 <th>Periyodik Muayene Bitiş</th>
@@ -217,7 +217,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL (TEHLİKE SINIFI & OTOMATİK HESAPLAMA ENTEGRELİ) -->
+  <!-- MODAL: PERSONEL (KULLANICI SEÇİMLİ VE TEHLİKELİ SINIFLI) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header"><h3>Yeni Personel ve Yasal Takip</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
@@ -235,17 +235,21 @@
         </select>
       </div>
       <div class="form-group"><label>Görevi / Pozisyonu</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen"></div>
+      
+      <!-- KULLANICININ KENDİ SEÇECEĞİ TEHLİKE SINIFI KUTUSU -->
       <div class="form-group">
-        <label>İşyeri Tehlike Sınıfı (Yasal Periyot)</label>
-        <select id="p_sinif" onchange="otomatikTarihHesapla()">
-          <option value="cok_tehlikeli" selected>Çok Tehlikeli (Eğitim: 1 Yıl / Muayene: 1 Yıl)</option>
-          <option value="tehlikeli">Tehlikeli (Eğitim: 2 Yıl / Muayene: 3 Yıl)</option>
-          <option value="az_tehlikeli">Az Tehlikeli (Eğitim: 3 Yıl / Muayene: 5 Yıl)</option>
+        <label style="color:#0284c7; font-weight:700;"><i class="fa-solid fa-sliders"></i> Personel Tehlike Sınıfı Seçimi</label>
+        <select id="p_sinif" onchange="otomatikTarihHesapla()" style="border:1.5px solid #0284c7; font-weight:600;">
+          <option value="tehlikeli" selected>Tehlikeli Sınıf (Eğitim: 2 Yıl / Muayene: 3 Yıl)</option>
+          <option value="cok_tehlikeli">Çok Tehlikeli Sınıf (Eğitim: 1 Yıl / Muayene: 1 Yıl)</option>
+          <option value="az_tehlikeli">Az Tehlikeli Sınıf (Eğitim: 3 Yıl / Muayene: 5 Yıl)</option>
+          <option value="manuel">Özel / Manuel Giriş (Süreleri Elle Belirleyeceğim)</option>
         </select>
       </div>
+
       <div class="form-group"><label>İşe Başlama Tarihi</label><input type="date" id="p_ise_baslama"></div>
       
-      <!-- OTOMATİK HESAPLAYAN TARİH KUTULARI -->
+      <!-- OTOMATİK HESAPLAYAN / İSTERSEN DEĞİŞTİREBİLECEĞİN TARİH KUTULARI -->
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
         <div class="form-group">
           <label>Son Yapılan İSG Eğitimi Tarihi</label>
@@ -359,18 +363,20 @@
       document.getElementById('sec-' + target).classList.remove('hidden');
     }
 
-    // YASAL TEHLİKE SINIFINA GÖRE OTOMATİK TARİH HESAPLAYICI
+    // KULLANICI SEÇİMLİ VE TEHLİKELİ SINIF ODAKLI TARİH MOTORU
     function otomatikTarihHesapla() {
       const sinif = document.getElementById('p_sinif').value;
+      if(sinif === 'manuel') return; // Kullanıcı kendisi elle yazmak isterse otomatik dokunmaz
+
       const egitimYapilis = document.getElementById('p_egitim_yapilis').value;
       const saglikYapilis = document.getElementById('p_saglik_yapilis').value;
 
-      let egitimYil = 1;
-      let saglikYil = 1;
+      let egitimYil = 2; // Tehlikeli varsayılan: 2 yıl
+      let saglikYil = 3; // Tehlikeli varsayılan: 3 yıl
 
-      if(sinif === 'tehlikeli') {
-        egitimYil = 2; // Tehlikeli sınıfta 2 yılda bir
-        saglikYil = 3; // Tehlikeli sınıfta 3 yılda bir
+      if(sinif === 'cok_tehlikeli') {
+        egitimYil = 1;
+        saglikYil = 1;
       } else if(sinif === 'az_tehlikeli') {
         egitimYil = 3;
         saglikYil = 5;
@@ -419,11 +425,17 @@
       db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q) || (x.gorev||'').toLowerCase().includes(q)).forEach(p => {
         const e = getStatus(p.egitim);
         const s = getStatus(p.saglik);
+        
+        let sinifLabel = 'Tehlikeli (2 Yıl/3 Yıl)';
+        if(p.sinif === 'cok_tehlikeli') sinifLabel = 'Çok Tehlikeli (1 Yıl)';
+        else if(p.sinif === 'az_tehlikeli') sinifLabel = 'Az Tehlikeli (3-5 Yıl)';
+        else if(p.sinif === 'manuel') sinifLabel = 'Özel / Manuel';
+
         tbody.innerHTML += `<tr>
           <td><strong>${p.ad}</strong></td>
           <td>${p.bolum||'-'}</td>
           <td>${p.gorev||'-'}</td>
-          <td><span style="font-size:11px; font-weight:700; color:#b91c1c;">${p.sinif === 'cok_tehlikeli' ? 'Çok Tehlikeli' : (p.sinif === 'tehlikeli' ? 'Tehlikeli' : 'Az Tehlikeli')}</span></td>
+          <td><span style="font-size:11px; font-weight:700; color:#b45309;"><i class="fa-solid fa-tag"></i> ${sinifLabel}</span></td>
           <td>${p.ise_baslama||'-'}</td>
           <td><span class="badge ${e.cls}">${e.text}</span> <div style="font-size:10px; color:#64748b;">${p.egitim||''}</div></td>
           <td><span class="badge ${s.cls}">${s.text}</span> <div style="font-size:10px; color:#64748b;">${p.saglik||''}</div></td>
@@ -445,6 +457,7 @@
       db.p.push({ id: Date.now(), ad, bolum, gorev, sinif, ise_baslama, egitim, saglik });
       sync(); personelCiz(); closeModal('modal-personel');
       document.getElementById('p_ad').value = '';
+      document.getElementById('p_gorev').value = '';
     }
 
     function sertifikaCiz() {
