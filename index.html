@@ -34,6 +34,7 @@
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     header { background: white; padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .plant-badge { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    .cloud-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0369a1; }
     .content { padding: 24px 28px; flex: 1; }
     .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
     .metric-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
@@ -65,19 +66,7 @@
     .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .hidden { display: none !important; }
 
-    /* SINIF KARTLARI */
-    .class-card {
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .class-card { border: 2px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; background: white; display: flex; justify-content: space-between; align-items: center; }
     .class-card:hover { border-color: var(--brand-blue); background: #f8fafc; }
     .class-card.selected { border-color: var(--brand-blue); background: #eff6ff; }
   </style>
@@ -101,19 +90,23 @@
       <li class="nav-item" onclick="switchNav('kazalar', this)"><i class="fa-solid fa-triangle-exclamation"></i> İş Kazası Defteri</li>
 
       <div class="nav-category">YASAL AYARLAR & MEVZUAT</div>
-      <!-- YENİ İSG SINIFLARI SEKMESİ -->
       <li class="nav-item" onclick="switchNav('siniflar', this)" style="color:#38bdf8; font-weight:700;"><i class="fa-solid fa-sliders"></i> İSG Sınıf Ayarları</li>
       <li class="nav-item" onclick="switchNav('istatistik', this)"><i class="fa-solid fa-calculator"></i> SGK Kaza Oranları Motoru</li>
     </ul>
   </aside>
+
   <main>
     <header>
       <div>
         <h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2>
-        <div class="plant-badge" id="headerBadge"><i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <div class="plant-badge" id="headerBadge"><i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
+          <div class="cloud-badge" id="cloudStatus"><i class="fa-solid fa-cloud-arrow-up"></i> Bulut Hazır</div>
+        </div>
       </div>
       <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
     </header>
+
     <div class="content">
       <div class="metric-grid">
         <div class="metric-card"><div><div class="metric-title">Toplam Personel</div><div class="metric-num" id="stat_toplam_p">0</div></div><i class="fa-solid fa-users" style="font-size:1.5rem; color:var(--brand-blue);"></i></div>
@@ -146,7 +139,7 @@
         </div>
       </section>
 
-      <!-- 2. İSG SINIFLARI SEKMESİ (KULLANICININ KENDİ YÖNETECEĞİ PANEL) -->
+      <!-- 2. İSG SINIFLARI SEKMESİ -->
       <section id="sec-siniflar" class="hidden">
         <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:700px;">
           <h3 style="margin-bottom:6px; font-size:1.15rem; color:#0f172a;"><i class="fa-solid fa-sliders" style="color:var(--brand-blue);"></i> Fabrika İSG Tehlike Sınıfı Seçimi</h3>
@@ -310,7 +303,6 @@
       <div class="form-group"><label>Görevi / Pozisyonu</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen"></div>
       <div class="form-group"><label>İşe Başlama Tarihi</label><input type="date" id="p_ise_baslama"></div>
       
-      <!-- HESAPLAYICI -->
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
         <div class="form-group">
           <label>Son Yapılan İSG Eğitimi Tarihi</label>
@@ -396,6 +388,11 @@
   </div>
 
   <script>
+    // BULUT VERİTABANI BAĞLANTISI (JSONBin.io)
+    const BIN_ID = '6aba83d3ffd5d1605337f957';
+    const MASTER_KEY = '$2a$10$AgSMqKfELFxqPVn8PEo3ie2lsSPAbvq/nawt/ATJSKDHJgJUjPs6u';
+    const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
     let db = {
       p: JSON.parse(localStorage.getItem('isg_p')) || [],
       s: JSON.parse(localStorage.getItem('isg_s')) || [],
@@ -403,7 +400,6 @@
       izin: JSON.parse(localStorage.getItem('isg_izin')) || [],
       k: JSON.parse(localStorage.getItem('isg_k')) || [],
       kkd: JSON.parse(localStorage.getItem('isg_kkd')) || [],
-      // KULLANICININ SEÇTİĞİ AKTİF SINIF AYARI
       ayar: JSON.parse(localStorage.getItem('isg_ayar')) || {
         sinif: 'tehlikeli',
         egitimYil: 2,
@@ -412,10 +408,77 @@
       }
     };
 
-    function sync() {
+    function updateCloudStatus(status, text) {
+      const el = document.getElementById('cloudStatus');
+      if (status === 'loading') {
+        el.style.background = '#fef3c7'; el.style.color = '#b45309';
+        el.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${text}`;
+      } else if (status === 'success') {
+        el.style.background = '#dcfce7'; el.style.color = '#15803d';
+        el.innerHTML = `<i class="fa-solid fa-cloud-check"></i> ${text}`;
+      } else {
+        el.style.background = '#fee2e2'; el.style.color = '#b91c1c';
+        el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
+      }
+    }
+
+    // BULUTTAN VERİLERİ ÇEK
+    async function buluttanYukle() {
+      updateCloudStatus('loading', 'Buluttan Alınıyor...');
+      try {
+        const res = await fetch(BIN_URL + '/latest', {
+          headers: { 'X-Master-Key': MASTER_KEY }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.record && typeof data.record === 'object') {
+            db.p = data.record.p || db.p;
+            db.s = data.record.s || db.s;
+            db.dof = data.record.dof || db.dof;
+            db.izin = data.record.izin || db.izin;
+            db.k = data.record.k || db.k;
+            db.kkd = data.record.kkd || db.kkd;
+            if (data.record.ayar) db.ayar = data.record.ayar;
+            
+            // Yerel hafızayı güncelle
+            for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
+            updateCloudStatus('success', 'Bulut Canlı');
+            cizimlerinHepsiniYenile();
+          }
+        } else {
+          updateCloudStatus('error', 'Bulut Okunamadı');
+        }
+      } catch (err) {
+        console.error(err);
+        updateCloudStatus('success', 'Yerel Aktif (Bulut Beklemede)');
+      }
+    }
+
+    // HEM YERELE HEM BULUTA KAYDET
+    async function sync() {
       for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
       updateMetrics();
       hesaplaIstatistik();
+
+      updateCloudStatus('loading', 'Buluta Yazılıyor...');
+      try {
+        const res = await fetch(BIN_URL, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY
+          },
+          body: JSON.stringify(db)
+        });
+        if (res.ok) {
+          updateCloudStatus('success', 'Bulut Senkronize');
+        } else {
+          updateCloudStatus('error', 'Buluta Yazılamadı');
+        }
+      } catch (e) {
+        console.error(e);
+        updateCloudStatus('error', 'İnternet Bağlantısı Yok');
+      }
     }
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -443,9 +506,7 @@
       document.getElementById('pageTitle').innerText = titles[target] || 'İSG Sistemi';
     }
 
-    // SINIF SEÇME PANELİ AKSİYONLARI
     let geciciSecim = db.ayar.sinif;
-
     function sinifSec(sinifKey) {
       geciciSecim = sinifKey;
       ['tehlikeli', 'cok_tehlikeli', 'az_tehlikeli', 'ozel'].forEach(k => {
@@ -453,7 +514,6 @@
         document.getElementById('check_' + k).className = 'fa-regular fa-circle';
         document.getElementById('check_' + k).style.color = '#cbd5e1';
       });
-
       document.getElementById('card_' + sinifKey).classList.add('selected');
       document.getElementById('check_' + sinifKey).className = 'fa-solid fa-circle-check';
       document.getElementById('check_' + sinifKey).style.color = '#0284c7';
@@ -471,27 +531,23 @@
         const sy = parseInt(document.getElementById('ozel_saglik_yil').value) || 1;
         db.ayar = { sinif: 'ozel', egitimYil: ey, saglikYil: sy, baslik: `ÖZEL AYAR (Eğitim: ${ey} Yıl / Muayene: ${sy} Yıl)` };
       }
-
       sync();
       updateHeaderBadge();
-      alert(`Fabrika aktif sınıfı başarıyla güncellendi:\n${db.ayar.baslik}`);
+      alert(`Fabrika aktif sınıfı buluta kaydedildi:\n${db.ayar.baslik}`);
     }
 
     function updateHeaderBadge() {
       document.getElementById('headerBadge').innerHTML = `<i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: ${db.ayar.baslik}`;
     }
 
-    // PERSONEL EKLEMEDE OTOMATİK TARİH HESABI
     function otomatikTarihHesapla() {
       const egitimYapilis = document.getElementById('p_egitim_yapilis').value;
       const saglikYapilis = document.getElementById('p_saglik_yapilis').value;
-
       if(egitimYapilis) {
         let d = new Date(egitimYapilis);
         d.setFullYear(d.getFullYear() + db.ayar.egitimYil);
         document.getElementById('p_egitim').value = d.toISOString().slice(0, 10);
       }
-
       if(saglikYapilis) {
         let d = new Date(saglikYapilis);
         d.setFullYear(d.getFullYear() + db.ayar.saglikYil);
@@ -548,7 +604,6 @@
       const ise_baslama = document.getElementById('p_ise_baslama').value;
       const egitim = document.getElementById('p_egitim').value;
       const saglik = document.getElementById('p_saglik').value;
-      
       if(!ad) return alert("Personel adı girin.");
       db.p.push({ id: Date.now(), ad, bolum, gorev, ise_baslama, egitim, saglik });
       sync(); personelCiz(); closeModal('modal-personel');
@@ -657,7 +712,7 @@
     }
 
     function sil(kat, id) {
-      if(confirm("Silinsin mi?")) {
+      if(confirm("Silinsin mi? Bu işlem buluttan da silecektir.")) {
         db[kat] = db[kat].filter(x => x.id !== id);
         sync();
         if(kat==='p') personelCiz(); if(kat==='s') sertifikaCiz();
@@ -674,10 +729,15 @@
       XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
     }
 
-    // BAŞLATMA
-    sinifSec(db.ayar.sinif);
-    updateHeaderBadge();
-    personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
+    function cizimlerinHepsiniYenile() {
+      sinifSec(db.ayar.sinif);
+      updateHeaderBadge();
+      personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
+    }
+
+    // İLK YÜKLEME VE BAŞLATMA
+    cizimlerinHepsiniYenile();
+    buluttanYukle();
   </script>
 </body>
 </html>
