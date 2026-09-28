@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECE TRAFO - İSG Yönetim Bilgi Sistemi</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --sidebar: #0f172a;
+      --brand-blue: #0284c7;
+      --bg: #f3f4f6;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+    aside { width: 290px; background: var(--sidebar); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+    .brand-box { padding: 16px; background: #ffffff; margin: 12px 14px; border-radius: 8px; text-align: center; }
+    .brand-logo-img { max-height: 50px; width: auto; object-fit: contain; }
+    .brand-portal-title { font-size: 0.72rem; font-weight: 800; color: #0f172a; margin-top: 4px; border-top: 1px solid #e2e8f0; padding-top: 4px; }
+    .nav-list { list-style: none; padding: 6px 0; flex: 1; overflow-y: auto; }
+    .nav-category { font-size: 0.65rem; color: #64748b; font-weight: 800; padding: 10px 20px 4px; text-transform: uppercase; }
+    .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 12px; color: #94a3b8; cursor: pointer; font-size: 0.86rem; }
+    .nav-item:hover, .nav-item.active { background-color: rgba(255,255,255,0.06); color: #ffffff; border-left: 4px solid var(--brand-blue); }
+    .nav-item i { width: 18px; text-align: center; }
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    header { background: white; padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .content { padding: 24px 28px; flex: 1; }
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .metric-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .metric-num { font-size: 1.55rem; font-weight: 800; }
+    .metric-title { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .table-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; }
+    .search-box { position: relative; width: 320px; }
+    .search-box input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.88rem; outline: none; }
+    .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .btn { padding: 8px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: var(--brand-blue); color: white; }
+    .btn-excel { background: #107c41; color: white; }
+    .btn-danger { background: var(--danger); color: white; padding: 4px 8px; font-size: 0.78rem; }
+    .table-container { background: white; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
+    th { background: #f8fafc; padding: 12px 14px; color: #334155; font-weight: 700; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+    .badge-success { background: #dcfce7; color: var(--success); }
+    .badge-warning { background: #fef3c7; color: var(--warning); }
+    .badge-danger { background: #fee2e2; color: var(--danger); }
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
+    .modal.active { opacity: 1; visibility: visible; }
+    .modal-content { background: white; width: 530px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.88rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <aside>
+    <div class="brand-box">
+      <img src="ece_logo.png" alt="ECE TRAFO" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+      <div id="logo-fallback" style="display:none; font-size: 1.3rem; font-weight:900; color:#0f172a;">ECE TRAFO</div>
+      <div class="brand-portal-title">İSG YÖNETİM PORTALI</div>
+    </div>
+    <ul class="nav-list">
+      <div class="nav-category">PERSONEL & YETKİNLİK</div>
+      <li class="nav-item active" onclick="switchNav('personel', this)"><i class="fa-solid fa-users"></i> Personel & Sağlık Takibi</li>
+      <li class="nav-item" onclick="switchNav('sertifika', this)"><i class="fa-solid fa-award"></i> İlk Yardım & MYK Belgeleri</li>
+      <li class="nav-item" onclick="switchNav('kkd', this)"><i class="fa-solid fa-vest"></i> KKD Zimmet Takibi</li>
+      <div class="nav-category">SAHA GÜVENLİĞİ</div>
+      <li class="nav-item" onclick="switchNav('dof', this)"><i class="fa-solid fa-clipboard-check"></i> Saha Denetimi & DÖF</li>
+      <li class="nav-item" onclick="switchNav('izin', this)"><i class="fa-solid fa-file-signature"></i> Özel İş İzinleri (PTW)</li>
+      <li class="nav-item" onclick="switchNav('kazalar', this)"><i class="fa-solid fa-triangle-exclamation"></i> İş Kazası Defteri</li>
+    </ul>
+  </aside>
+  <main>
+    <header>
+      <div><h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2></div>
+      <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
+    </header>
+    <div class="content">
+      <div class="metric-grid">
+        <div class="metric-card"><div><div class="metric-title">Toplam Personel</div><div class="metric-num" id="stat_toplam_p">0</div></div><i class="fa-solid fa-users" style="font-size:1.5rem; color:var(--brand-blue);"></i></div>
+        <div class="metric-card"><div><div class="metric-title">Açık DÖF</div><div class="metric-num" id="stat_acik_dof" style="color:var(--danger)">0</div></div><i class="fa-solid fa-clipboard-check" style="font-size:1.5rem; color:var(--danger);"></i></div>
+        <div class="metric-card"><div><div class="metric-title">Kaza Kaydı</div><div class="metric-num" id="stat_kaza">0</div></div><i class="fa-solid fa-bandage" style="font-size:1.5rem; color:var(--warning);"></i></div>
+      </div>
+      <section id="sec-personel">
+        <div class="table-actions">
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Ara..." oninput="personelCiz()"></div>
+          <button class="btn btn-primary" onclick="openModal('modal-personel')"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Ad Soyad</th><th>Bölüm</th><th>Görevi</th><th>İşe Başlama</th><th>İSG Eğitimi</th><th>Sağlık Raporu</th><th>İşlem</th></tr></thead>
+            <tbody id="personelTablo"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="sec-sertifika" class="hidden">
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-sertifika')"><i class="fa-solid fa-plus"></i> Belge Ekle</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Personel</th><th>Belge Türü</th><th>Kurum / No</th><th>Vize Tarihi</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody id="sertifikaTablo"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="sec-kkd" class="hidden">
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-kkd')"><i class="fa-solid fa-plus"></i> KKD Zimmetle</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Personel</th><th>Donanım</th><th>Veriliş</th><th>Değişim</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody id="kkdTablo"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="sec-dof" class="hidden">
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Tarih</th><th>Bölüm</th><th>Uygunsuzluk</th><th>Aksiyon</th><th>Sorumlu</th><th>Statü</th><th>İşlem</th></tr></thead>
+            <tbody id="dofTablo"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="sec-izin" class="hidden">
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>İzin No</th><th>Tür</th><th>Alan</th><th>Personel</th><th>Statü</th><th>İşlem</th></tr></thead>
+            <tbody id="izinTablo"></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="sec-kazalar" class="hidden">
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead><tr><th>Tarih</th><th>Kazazede</th><th>Tür</th><th>Kayıp Gün</th><th>İşlem</th></tr></thead>
+            <tbody id="kazaTablo"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal" id="modal-personel">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Yeni Personel</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
+      <div class="form-group"><label>Ad Soyad</label><input type="text" id="p_ad"></div>
+      <div class="form-group"><label>Bölüm</label><input type="text" id="p_bolum" placeholder="Örn: Kazan Montaj Holü"></div>
+      <div class="form-group"><label>Görevi</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı"></div>
+      <div class="form-group"><label>İşe Başlama</label><input type="date" id="p_ise_baslama"></div>
+      <div class="form-group"><label>İSG Eğitim Bitiş</label><input type="date" id="p_egitim"></div>
+      <div class="form-group"><label>Sağlık Rapor Bitiş</label><input type="date" id="p_saglik"></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="personelEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-sertifika">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Belge Ekle</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-sertifika')"></i></div>
+      <div class="form-group"><label>Personel</label><input type="text" id="s_ad"></div>
+      <div class="form-group"><label>Belge Türü</label><select id="s_tur"><option>İlk Yardımcı Sertifikası</option><option>MYK Çelik Kaynakçısı</option><option>Tavan Vinci Operatörü</option><option>Forklift Operatörü</option></select></div>
+      <div class="form-group"><label>Kurum / No</label><input type="text" id="s_kurum"></div>
+      <div class="form-group"><label>Vize Bitiş</label><input type="date" id="s_bitis"></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="sertifikaEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-kkd">
+    <div class="modal-content">
+      <div class="modal-header"><h3>KKD Zimmet</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kkd')"></i></div>
+      <div class="form-group"><label>Personel</label><input type="text" id="kkd_p"></div>
+      <div class="form-group"><label>Donanım</label><input type="text" id="kkd_tur" placeholder="Örn: S3 İş Ayakkabısı"></div>
+      <div class="form-group"><label>Veriliş Tarihi</label><input type="date" id="kkd_verilis"></div>
+      <div class="form-group"><label>Değişim Periyodu (Ay)</label><select id="kkd_omur"><option value="6">6 Ay</option><option value="12" selected>12 Ay</option></select></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="kkdEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-dof">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Saha DÖF Girişi</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-dof')"></i></div>
+      <div class="form-group"><label>Tarih</label><input type="date" id="dof_tarih"></div>
+      <div class="form-group"><label>Bölüm</label><input type="text" id="dof_bolum"></div>
+      <div class="form-group"><label>Tespit</label><textarea id="dof_tespit" rows="2"></textarea></div>
+      <div class="form-group"><label>Aksiyon</label><textarea id="dof_aksiyon" rows="2"></textarea></div>
+      <div class="form-group"><label>Sorumlu</label><input type="text" id="dof_sorumlu"></div>
+      <div class="form-group"><label>Statü</label><select id="dof_statu"><option>Açık</option><option>Kapatıldı</option></select></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="dofEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-izin">
+    <div class="modal-content">
+      <div class="modal-header"><h3>İş İzni Aç</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-izin')"></i></div>
+      <div class="form-group"><label>İzin No</label><input type="text" id="ptw_no" placeholder="Örn: PTW-01"></div>
+      <div class="form-group"><label>Tür</label><select id="ptw_tur"><option>Kazan İçi Giriş İzni</option><option>Sıcak Çalışma İzni</option><option>Yüksekte Çalışma</option></select></div>
+      <div class="form-group"><label>Alan</label><input type="text" id="ptw_alan"></div>
+      <div class="form-group"><label>Personel</label><input type="text" id="ptw_personel"></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="izinEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-kaza">
+    <div class="modal-content">
+      <div class="modal-header"><h3>Kaza Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kaza')"></i></div>
+      <div class="form-group"><label>Tarih</label><input type="date" id="k_tarih"></div>
+      <div class="form-group"><label>Kazazede</label><input type="text" id="k_ad"></div>
+      <div class="form-group"><label>Tür</label><select id="k_tur"><option>Hafif Yaralanma</option><option>İş Göremezlik Raporlu</option><option>Ramak Kala</option></select></div>
+      <div class="form-group"><label>Kayıp Gün</label><input type="number" id="k_gun" value="0"></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="kazaEkle()">Kaydet</button></div>
+    </div>
+  </div>
+
+  <script>
+    let db = {
+      p: JSON.parse(localStorage.getItem('isg_p')) || [],
+      s: JSON.parse(localStorage.getItem('isg_s')) || [],
+      dof: JSON.parse(localStorage.getItem('isg_dof')) || [],
+      izin: JSON.parse(localStorage.getItem('isg_izin')) || [],
+      k: JSON.parse(localStorage.getItem('isg_k')) || [],
+      kkd: JSON.parse(localStorage.getItem('isg_kkd')) || []
+    };
+
+    function sync() {
+      for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
+      updateMetrics();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    function switchNav(target, elem) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      elem.classList.add('active');
+      ['personel', 'sertifika', 'kkd', 'dof', 'izin', 'kazalar'].forEach(s => {
+        const el = document.getElementById('sec-' + s);
+        if(el) el.classList.add('hidden');
+      });
+      document.getElementById('sec-' + target).classList.remove('hidden');
+    }
+
+    function getStatus(dateStr) {
+      if(!dateStr) return { text: "Tarih Yok", cls: "badge-danger", diff: -999 };
+      const target = new Date(dateStr);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) return { text: `Süresi Doldu (${Math.abs(diff)} gün)`, cls: "badge-danger", diff };
+      if (diff <= 30) return { text: `Yaklaştı (${diff} gün)`, cls: "badge-warning", diff };
+      return { text: `Geçerli (${diff} gün)`, cls: "badge-success", diff };
+    }
+
+    function updateMetrics() {
+      document.getElementById('stat_toplam_p').innerText = db.p.length;
+      document.getElementById('stat_acik_dof').innerText = db.dof.filter(x => x.statu !== 'Kapatıldı').length;
+      document.getElementById('stat_kaza').innerText = db.k.length;
+    }
+
+    function personelCiz() {
+      const q = document.getElementById('p_ara').value.toLowerCase();
+      const tbody = document.getElementById('personelTablo');
+      tbody.innerHTML = '';
+      db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q)).forEach(p => {
+        const e = getStatus(p.egitim);
+        const s = getStatus(p.saglik);
+        tbody.innerHTML += `<tr>
+          <td><strong>${p.ad}</strong></td><td>${p.bolum||'-'}</td><td>${p.gorev||'-'}</td><td>${p.ise_baslama||'-'}</td>
+          <td><span class="badge ${e.cls}">${e.text}</span></td><td><span class="badge ${s.cls}">${s.text}</span></td>
+          <td><button class="btn btn-danger" onclick="sil('p', ${p.id})"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>`;
+      });
+    }
+
+    function personelEkle() {
+      const ad = document.getElementById('p_ad').value.trim();
+      const bolum = document.getElementById('p_bolum').value.trim();
+      const gorev = document.getElementById('p_gorev').value.trim();
+      const ise_baslama = document.getElementById('p_ise_baslama').value;
+      const egitim = document.getElementById('p_egitim').value;
+      const saglik = document.getElementById('p_saglik').value;
+      if(!ad) return alert("Personel adı girin.");
+      db.p.push({ id: Date.now(), ad, bolum, gorev, ise_baslama, egitim, saglik });
+      sync(); personelCiz(); closeModal('modal-personel');
+      document.getElementById('p_ad').value = '';
+    }
+
+    function sertifikaCiz() {
+      const tbody = document.getElementById('sertifikaTablo');
+      tbody.innerHTML = '';
+      db.s.forEach(s => {
+        const d = getStatus(s.bitis);
+        tbody.innerHTML += `<tr><td>${s.ad}</td><td>${s.tur}</td><td>${s.kurum||'-'}</td><td>${s.bitis||'-'}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('s', ${s.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      });
+    }
+    function sertifikaEkle() {
+      const ad = document.getElementById('s_ad').value.trim();
+      const tur = document.getElementById('s_tur').value;
+      const kurum = document.getElementById('s_kurum').value.trim();
+      const bitis = document.getElementById('s_bitis').value;
+      if(!ad) return alert("Ad girin.");
+      db.s.push({ id: Date.now(), ad, tur, kurum, bitis });
+      sync(); sertifikaCiz(); closeModal('modal-sertifika');
+    }
+
+    function kkdCiz() {
+      const tbody = document.getElementById('kkdTablo');
+      tbody.innerHTML = '';
+      db.kkd.forEach(k => {
+        const d = getStatus(k.degisim);
+        tbody.innerHTML += `<tr><td>${k.personel}</td><td>${k.tur}</td><td>${k.verilis}</td><td>${k.degisim}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('kkd', ${k.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      });
+    }
+    function kkdEkle() {
+      const personel = document.getElementById('kkd_p').value.trim();
+      const tur = document.getElementById('kkd_tur').value.trim();
+      const verilis = document.getElementById('kkd_verilis').value;
+      const omur = parseInt(document.getElementById('kkd_omur').value);
+      if(!personel || !verilis) return alert("Ad ve tarih zorunlu.");
+      let d = new Date(verilis); d.setMonth(d.getMonth() + omur);
+      db.kkd.push({ id: Date.now(), personel, tur, verilis, degisim: d.toISOString().slice(0,10) });
+      sync(); kkdCiz(); closeModal('modal-kkd');
+    }
+
+    function dofCiz() {
+      const tbody = document.getElementById('dofTablo');
+      tbody.innerHTML = '';
+      db.dof.forEach(d => {
+        tbody.innerHTML += `<tr><td>${d.tarih}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn btn-danger" onclick="sil('dof', ${d.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      });
+    }
+    function dofEkle() {
+      const tarih = document.getElementById('dof_tarih').value;
+      const bolum = document.getElementById('dof_bolum').value;
+      const tespit = document.getElementById('dof_tespit').value;
+      const aksiyon = document.getElementById('dof_aksiyon').value;
+      const sorumlu = document.getElementById('dof_sorumlu').value;
+      const statu = document.getElementById('dof_statu').value;
+      db.dof.push({ id: Date.now(), tarih, bolum, tespit, aksiyon, sorumlu, statu });
+      sync(); dofCiz(); closeModal('modal-dof');
+    }
+
+    function izinCiz() {
+      const tbody = document.getElementById('izinTablo');
+      tbody.innerHTML = '';
+      db.izin.forEach(i => {
+        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn btn-danger" onclick="sil('izin', ${i.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      });
+    }
+    function izinEkle() {
+      const no = document.getElementById('ptw_no').value;
+      const tur = document.getElementById('ptw_tur').value;
+      const alan = document.getElementById('ptw_alan').value;
+      const personel = document.getElementById('ptw_personel').value;
+      db.izin.push({ id: Date.now(), no, tur, alan, personel });
+      sync(); izinCiz(); closeModal('modal-izin');
+    }
+
+    function kazaCiz() {
+      const tbody = document.getElementById('kazaTablo');
+      tbody.innerHTML = '';
+      db.k.forEach(k => {
+        tbody.innerHTML += `<tr><td>${k.tarih}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn btn-danger" onclick="sil('k', ${k.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+      });
+    }
+    function kazaEkle() {
+      const tarih = document.getElementById('k_tarih').value;
+      const ad = document.getElementById('k_ad').value;
+      const tur = document.getElementById('k_tur').value;
+      const gun = document.getElementById('k_gun').value;
+      db.k.push({ id: Date.now(), tarih, ad, tur, gun });
+      sync(); kazaCiz(); closeModal('modal-kaza');
+    }
+
+    function sil(kat, id) {
+      if(confirm("Silinsin mi?")) {
+        db[kat] = db[kat].filter(x => x.id !== id);
+        sync();
+        if(kat==='p') personelCiz(); if(kat==='s') sertifikaCiz();
+        if(kat==='kkd') kkdCiz(); if(kat==='dof') dofCiz();
+        if(kat==='izin') izinCiz(); if(kat==='k') kazaCiz();
+      }
+    }
+
+    function excelIndir() {
+      const wb = XLSX.utils.book_new();
+      if(db.p.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.p), "Personel");
+      if(db.s.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.s), "Sertifikalar");
+      if(db.dof.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.dof), "DOF");
+      XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
+    }
+
+    personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics();
+  </script>
+</body>
+</html>
