@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ECE TRAFO - İSG Yönetim Bilgi Sistemi</title>
+  <!-- SheetJS & FontAwesome -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
     :root {
       --sidebar: #0f172a;
@@ -26,15 +28,16 @@
     .brand-portal-title { font-size: 0.72rem; font-weight: 800; color: #0f172a; margin-top: 4px; border-top: 1px solid #e2e8f0; padding-top: 4px; }
     .nav-list { list-style: none; padding: 6px 0; flex: 1; overflow-y: auto; }
     .nav-category { font-size: 0.65rem; color: #64748b; font-weight: 800; padding: 10px 20px 4px; text-transform: uppercase; }
-    .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 12px; color: #94a3b8; cursor: pointer; font-size: 0.86rem; }
+    .nav-item { padding: 10px 20px; display: flex; align-items: center; gap: 12px; color: #94a3b8; cursor: pointer; font-size: 0.86rem; transition: 0.2s; }
     .nav-item:hover, .nav-item.active { background-color: rgba(255,255,255,0.06); color: #ffffff; border-left: 4px solid var(--brand-blue); }
     .nav-item i { width: 18px; text-align: center; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
     header { background: white; padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .plant-badge { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
     .content { padding: 24px 28px; flex: 1; }
     .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
     .metric-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-    .metric-num { font-size: 1.55rem; font-weight: 800; }
+    .metric-num { font-size: 1.55rem; font-weight: 800; margin-top: 2px; }
     .metric-title { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
     .table-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; }
     .search-box { position: relative; width: 320px; }
@@ -54,7 +57,7 @@
     .badge-danger { background: #fee2e2; color: var(--danger); }
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
     .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 530px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; width: 540px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
@@ -71,39 +74,60 @@
       <div class="brand-portal-title">İSG YÖNETİM PORTALI</div>
     </div>
     <ul class="nav-list">
-      <div class="nav-category">PERSONEL & YETKİNLİK</div>
-      <li class="nav-item active" onclick="switchNav('personel', this)"><i class="fa-solid fa-users"></i> Personel & Sağlık Takibi</li>
+      <div class="nav-category">PERSONEL & SAĞLIK</div>
+      <li class="nav-item active" onclick="switchNav('personel', this)"><i class="fa-solid fa-users"></i> Personel & Muayene Takibi</li>
       <li class="nav-item" onclick="switchNav('sertifika', this)"><i class="fa-solid fa-award"></i> İlk Yardım & MYK Belgeleri</li>
       <li class="nav-item" onclick="switchNav('kkd', this)"><i class="fa-solid fa-vest"></i> KKD Zimmet Takibi</li>
       <div class="nav-category">SAHA GÜVENLİĞİ</div>
       <li class="nav-item" onclick="switchNav('dof', this)"><i class="fa-solid fa-clipboard-check"></i> Saha Denetimi & DÖF</li>
       <li class="nav-item" onclick="switchNav('izin', this)"><i class="fa-solid fa-file-signature"></i> Özel İş İzinleri (PTW)</li>
       <li class="nav-item" onclick="switchNav('kazalar', this)"><i class="fa-solid fa-triangle-exclamation"></i> İş Kazası Defteri</li>
+      <div class="nav-category">YASAL MEVZUAT & ORANLAR</div>
+      <li class="nav-item" onclick="switchNav('istatistik', this)"><i class="fa-solid fa-calculator"></i> SGK Kaza Oranları Motoru</li>
     </ul>
   </aside>
   <main>
     <header>
-      <div><h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2></div>
+      <div>
+        <h2 style="font-size:1.15rem; font-weight:800;" id="pageTitle">Personel Eğitim & Sağlık İzleme</h2>
+        <div class="plant-badge"><i class="fa-solid fa-triangle-exclamation"></i> Fabrika Sınıfı: Tehlikeli / Çok Tehlikeli Sınıf (Yıllık Takip)</div>
+      </div>
       <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
     </header>
     <div class="content">
       <div class="metric-grid">
         <div class="metric-card"><div><div class="metric-title">Toplam Personel</div><div class="metric-num" id="stat_toplam_p">0</div></div><i class="fa-solid fa-users" style="font-size:1.5rem; color:var(--brand-blue);"></i></div>
-        <div class="metric-card"><div><div class="metric-title">Açık DÖF</div><div class="metric-num" id="stat_acik_dof" style="color:var(--danger)">0</div></div><i class="fa-solid fa-clipboard-check" style="font-size:1.5rem; color:var(--danger);"></i></div>
-        <div class="metric-card"><div><div class="metric-title">Kaza Kaydı</div><div class="metric-num" id="stat_kaza">0</div></div><i class="fa-solid fa-bandage" style="font-size:1.5rem; color:var(--warning);"></i></div>
+        <div class="metric-card"><div><div class="metric-title">Yenileme Alarmı</div><div class="metric-num" id="stat_alarm" style="color:var(--danger)">0</div></div><i class="fa-solid fa-bell" style="font-size:1.5rem; color:var(--danger);"></i></div>
+        <div class="metric-card"><div><div class="metric-title">Açık DÖF</div><div class="metric-num" id="stat_acik_dof" style="color:var(--warning)">0</div></div><i class="fa-solid fa-clipboard-check" style="font-size:1.5rem; color:var(--warning);"></i></div>
+        <div class="metric-card"><div><div class="metric-title">Kaza Sayısı</div><div class="metric-num" id="stat_kaza">0</div></div><i class="fa-solid fa-bandage" style="font-size:1.5rem; color:#475569;"></i></div>
       </div>
+
+      <!-- 1. PERSONEL -->
       <section id="sec-personel">
         <div class="table-actions">
-          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Ara..." oninput="personelCiz()"></div>
-          <button class="btn btn-primary" onclick="openModal('modal-personel')"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Personel, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
+          <button class="btn btn-primary" onclick="openModal('modal-personel')"><i class="fa-solid fa-plus"></i> Yeni Personel Ekle</button>
         </div>
         <div class="table-container">
           <table>
-            <thead><tr><th>Ad Soyad</th><th>Bölüm</th><th>Görevi</th><th>İşe Başlama</th><th>İSG Eğitimi</th><th>Sağlık Raporu</th><th>İşlem</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Ad Soyad</th>
+                <th>Bölüm / İstasyon</th>
+                <th>Görevi / Pozisyon</th>
+                <th>Sınıfı</th>
+                <th>İşe Başlama</th>
+                <th>İSG Eğitimi Bitiş</th>
+                <th>Periyodik Muayene Bitiş</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
             <tbody id="personelTablo"></tbody>
           </table>
         </div>
       </section>
+
+      <!-- 2. SERTİFİKA -->
       <section id="sec-sertifika" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-sertifika')"><i class="fa-solid fa-plus"></i> Belge Ekle</button>
@@ -115,6 +139,8 @@
           </table>
         </div>
       </section>
+
+      <!-- 3. KKD -->
       <section id="sec-kkd" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-kkd')"><i class="fa-solid fa-plus"></i> KKD Zimmetle</button>
@@ -126,6 +152,8 @@
           </table>
         </div>
       </section>
+
+      <!-- 4. DÖF -->
       <section id="sec-dof" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button>
@@ -137,6 +165,8 @@
           </table>
         </div>
       </section>
+
+      <!-- 5. İŞ İZNİ -->
       <section id="sec-izin" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button>
@@ -148,6 +178,8 @@
           </table>
         </div>
       </section>
+
+      <!-- 6. KAZALAR -->
       <section id="sec-kazalar" class="hidden">
         <div class="table-actions">
           <button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button>
@@ -159,27 +191,93 @@
           </table>
         </div>
       </section>
+
+      <!-- 7. YASAL İSTATİSTİK MOTORU -->
+      <section id="sec-istatistik" class="hidden">
+        <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:650px;">
+          <h3 style="margin-bottom:12px; font-size:1.1rem; color:#0f172a;"><i class="fa-solid fa-calculator" style="color:var(--brand-blue);"></i> SGK / Bakanlık Resmi Kaza Oranları</h3>
+          <div class="form-group">
+            <label>Dönemdeki Fiili Çalışma Saati (Adam x Saat)</label>
+            <input type="number" id="stat_fiili_saat" value="100000" oninput="hesaplaIstatistik()">
+          </div>
+          <div style="background:#f8fafc; padding:18px; border-radius:8px; margin-top:15px; border:1px solid #e2e8f0;">
+            <div style="margin-bottom:14px;">
+              <strong>Kaza Sıklık Oranı (KSO): </strong>
+              <span id="res_kso" style="font-size:1.2rem; font-weight:800; color:var(--brand-blue);">0.00</span>
+              <div style="font-size:0.75rem; color:#64748b;">(SGK Formülü: Toplam Kaza Sayısı × 1.000.000 / Fiili Çalışma Saati)</div>
+            </div>
+            <div>
+              <strong>Kaza Ağırlık Oranı (KAO): </strong>
+              <span id="res_kao" style="font-size:1.2rem; font-weight:800; color:var(--danger);">0.00</span>
+              <div style="font-size:0.75rem; color:#64748b;">(SGK Formülü: Toplam Kayıp Gün × 1.000 / Fiili Çalışma Saati)</div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
+  <!-- MODAL: PERSONEL (TEHLİKE SINIFI & OTOMATİK HESAPLAMA ENTEGRELİ) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
-      <div class="modal-header"><h3>Yeni Personel</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
-      <div class="form-group"><label>Ad Soyad</label><input type="text" id="p_ad"></div>
-      <div class="form-group"><label>Bölüm</label><input type="text" id="p_bolum" placeholder="Örn: Kazan Montaj Holü"></div>
-      <div class="form-group"><label>Görevi</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı"></div>
-      <div class="form-group"><label>İşe Başlama</label><input type="date" id="p_ise_baslama"></div>
-      <div class="form-group"><label>İSG Eğitim Bitiş</label><input type="date" id="p_egitim"></div>
-      <div class="form-group"><label>Sağlık Rapor Bitiş</label><input type="date" id="p_saglik"></div>
+      <div class="modal-header"><h3>Yeni Personel ve Yasal Takip</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
+      <div class="form-group"><label>Adı Soyadı</label><input type="text" id="p_ad" placeholder="Ad Soyad giriniz"></div>
+      <div class="form-group">
+        <label>Fabrika Bölümü / İstasyon</label>
+        <select id="p_bolum">
+          <option>Kazan Kaynak & Montaj Holü</option>
+          <option>Kumlama & Boyahane İstasyonu</option>
+          <option>Mekanik İşleme & CNC Atölyesi</option>
+          <option>Lazer & Giyotin Saç Kesim</option>
+          <option>Elektrik & Mekanik Bakım</option>
+          <option>Açık Saha & Sevkiyat</option>
+          <option>İdari İşler & Kalite</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Görevi / Pozisyonu</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen"></div>
+      <div class="form-group">
+        <label>İşyeri Tehlike Sınıfı (Yasal Periyot)</label>
+        <select id="p_sinif" onchange="otomatikTarihHesapla()">
+          <option value="cok_tehlikeli" selected>Çok Tehlikeli (Eğitim: 1 Yıl / Muayene: 1 Yıl)</option>
+          <option value="tehlikeli">Tehlikeli (Eğitim: 2 Yıl / Muayene: 3 Yıl)</option>
+          <option value="az_tehlikeli">Az Tehlikeli (Eğitim: 3 Yıl / Muayene: 5 Yıl)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>İşe Başlama Tarihi</label><input type="date" id="p_ise_baslama"></div>
+      
+      <!-- OTOMATİK HESAPLAYAN TARİH KUTULARI -->
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
+        <div class="form-group">
+          <label>Son Yapılan İSG Eğitimi Tarihi</label>
+          <input type="date" id="p_egitim_yapilis" onchange="otomatikTarihHesapla()">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>İSG Eğitimi Bitiş (Yenileme) Tarihi</label>
+          <input type="date" id="p_egitim">
+        </div>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
+        <div class="form-group">
+          <label>Son Sağlık Muayenesi Tarihi</label>
+          <input type="date" id="p_saglik_yapilis" onchange="otomatikTarihHesapla()">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Sağlık Raporu Bitiş (Yenileme) Tarihi</label>
+          <input type="date" id="p_saglik">
+        </div>
+      </div>
+
       <div class="modal-footer"><button class="btn btn-primary" onclick="personelEkle()">Kaydet</button></div>
     </div>
   </div>
 
+  <!-- Diğer Modallar -->
   <div class="modal" id="modal-sertifika">
     <div class="modal-content">
       <div class="modal-header"><h3>Belge Ekle</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-sertifika')"></i></div>
       <div class="form-group"><label>Personel</label><input type="text" id="s_ad"></div>
-      <div class="form-group"><label>Belge Türü</label><select id="s_tur"><option>İlk Yardımcı Sertifikası</option><option>MYK Çelik Kaynakçısı</option><option>Tavan Vinci Operatörü</option><option>Forklift Operatörü</option></select></div>
+      <div class="form-group"><label>Belge Türü</label><select id="s_tur"><option>İlk Yardımcı Sertifikası (3 Yıl Vize)</option><option>MYK Çelik Kaynakçısı</option><option>Tavan Vinci Operatörü</option><option>Forklift Operatörü</option><option>Kazan Operatörü</option></select></div>
       <div class="form-group"><label>Kurum / No</label><input type="text" id="s_kurum"></div>
       <div class="form-group"><label>Vize Bitiş</label><input type="date" id="s_bitis"></div>
       <div class="modal-footer"><button class="btn btn-primary" onclick="sertifikaEkle()">Kaydet</button></div>
@@ -214,7 +312,7 @@
     <div class="modal-content">
       <div class="modal-header"><h3>İş İzni Aç</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-izin')"></i></div>
       <div class="form-group"><label>İzin No</label><input type="text" id="ptw_no" placeholder="Örn: PTW-01"></div>
-      <div class="form-group"><label>Tür</label><select id="ptw_tur"><option>Kazan İçi Giriş İzni</option><option>Sıcak Çalışma İzni</option><option>Yüksekte Çalışma</option></select></div>
+      <div class="form-group"><label>Tür</label><select id="ptw_tur"><option>Kazan İçi Kapalı Alan Girişi</option><option>Sıcak Çalışma (Kaynak/Alev)</option><option>Yüksekte Çalışma</option></select></div>
       <div class="form-group"><label>Alan</label><input type="text" id="ptw_alan"></div>
       <div class="form-group"><label>Personel</label><input type="text" id="ptw_personel"></div>
       <div class="modal-footer"><button class="btn btn-primary" onclick="izinEkle()">Kaydet</button></div>
@@ -226,7 +324,7 @@
       <div class="modal-header"><h3>Kaza Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kaza')"></i></div>
       <div class="form-group"><label>Tarih</label><input type="date" id="k_tarih"></div>
       <div class="form-group"><label>Kazazede</label><input type="text" id="k_ad"></div>
-      <div class="form-group"><label>Tür</label><select id="k_tur"><option>Hafif Yaralanma</option><option>İş Göremezlik Raporlu</option><option>Ramak Kala</option></select></div>
+      <div class="form-group"><label>Tür</label><select id="k_tur"><option>Hafif Yaralanma</option><option>İş Göremezlik Raporlu Kaza</option><option>Ramak Kala</option></select></div>
       <div class="form-group"><label>Kayıp Gün</label><input type="number" id="k_gun" value="0"></div>
       <div class="modal-footer"><button class="btn btn-primary" onclick="kazaEkle()">Kaydet</button></div>
     </div>
@@ -245,6 +343,7 @@
     function sync() {
       for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
       updateMetrics();
+      hesaplaIstatistik();
     }
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -253,11 +352,41 @@
     function switchNav(target, elem) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       elem.classList.add('active');
-      ['personel', 'sertifika', 'kkd', 'dof', 'izin', 'kazalar'].forEach(s => {
+      ['personel', 'sertifika', 'kkd', 'dof', 'izin', 'kazalar', 'istatistik'].forEach(s => {
         const el = document.getElementById('sec-' + s);
         if(el) el.classList.add('hidden');
       });
       document.getElementById('sec-' + target).classList.remove('hidden');
+    }
+
+    // YASAL TEHLİKE SINIFINA GÖRE OTOMATİK TARİH HESAPLAYICI
+    function otomatikTarihHesapla() {
+      const sinif = document.getElementById('p_sinif').value;
+      const egitimYapilis = document.getElementById('p_egitim_yapilis').value;
+      const saglikYapilis = document.getElementById('p_saglik_yapilis').value;
+
+      let egitimYil = 1;
+      let saglikYil = 1;
+
+      if(sinif === 'tehlikeli') {
+        egitimYil = 2; // Tehlikeli sınıfta 2 yılda bir
+        saglikYil = 3; // Tehlikeli sınıfta 3 yılda bir
+      } else if(sinif === 'az_tehlikeli') {
+        egitimYil = 3;
+        saglikYil = 5;
+      }
+
+      if(egitimYapilis) {
+        let d = new Date(egitimYapilis);
+        d.setFullYear(d.getFullYear() + egitimYil);
+        document.getElementById('p_egitim').value = d.toISOString().slice(0, 10);
+      }
+
+      if(saglikYapilis) {
+        let d = new Date(saglikYapilis);
+        d.setFullYear(d.getFullYear() + saglikYil);
+        document.getElementById('p_saglik').value = d.toISOString().slice(0, 10);
+      }
     }
 
     function getStatus(dateStr) {
@@ -267,7 +396,7 @@
       today.setHours(0,0,0,0);
       const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
       if (diff < 0) return { text: `Süresi Doldu (${Math.abs(diff)} gün)`, cls: "badge-danger", diff };
-      if (diff <= 30) return { text: `Yaklaştı (${diff} gün)`, cls: "badge-warning", diff };
+      if (diff <= 60) return { text: `Yaklaştı (${diff} gün)`, cls: "badge-warning", diff };
       return { text: `Geçerli (${diff} gün)`, cls: "badge-success", diff };
     }
 
@@ -275,18 +404,29 @@
       document.getElementById('stat_toplam_p').innerText = db.p.length;
       document.getElementById('stat_acik_dof').innerText = db.dof.filter(x => x.statu !== 'Kapatıldı').length;
       document.getElementById('stat_kaza').innerText = db.k.length;
+
+      let alarm = 0;
+      db.p.forEach(x => {
+        if(getStatus(x.egitim).diff <= 60 || getStatus(x.saglik).diff <= 60) alarm++;
+      });
+      document.getElementById('stat_alarm').innerText = alarm;
     }
 
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
       tbody.innerHTML = '';
-      db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q)).forEach(p => {
+      db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q) || (x.gorev||'').toLowerCase().includes(q)).forEach(p => {
         const e = getStatus(p.egitim);
         const s = getStatus(p.saglik);
         tbody.innerHTML += `<tr>
-          <td><strong>${p.ad}</strong></td><td>${p.bolum||'-'}</td><td>${p.gorev||'-'}</td><td>${p.ise_baslama||'-'}</td>
-          <td><span class="badge ${e.cls}">${e.text}</span></td><td><span class="badge ${s.cls}">${s.text}</span></td>
+          <td><strong>${p.ad}</strong></td>
+          <td>${p.bolum||'-'}</td>
+          <td>${p.gorev||'-'}</td>
+          <td><span style="font-size:11px; font-weight:700; color:#b91c1c;">${p.sinif === 'cok_tehlikeli' ? 'Çok Tehlikeli' : (p.sinif === 'tehlikeli' ? 'Tehlikeli' : 'Az Tehlikeli')}</span></td>
+          <td>${p.ise_baslama||'-'}</td>
+          <td><span class="badge ${e.cls}">${e.text}</span> <div style="font-size:10px; color:#64748b;">${p.egitim||''}</div></td>
+          <td><span class="badge ${s.cls}">${s.text}</span> <div style="font-size:10px; color:#64748b;">${p.saglik||''}</div></td>
           <td><button class="btn btn-danger" onclick="sil('p', ${p.id})"><i class="fa-solid fa-trash"></i></button></td>
         </tr>`;
       });
@@ -294,13 +434,15 @@
 
     function personelEkle() {
       const ad = document.getElementById('p_ad').value.trim();
-      const bolum = document.getElementById('p_bolum').value.trim();
+      const bolum = document.getElementById('p_bolum').value;
       const gorev = document.getElementById('p_gorev').value.trim();
+      const sinif = document.getElementById('p_sinif').value;
       const ise_baslama = document.getElementById('p_ise_baslama').value;
       const egitim = document.getElementById('p_egitim').value;
       const saglik = document.getElementById('p_saglik').value;
+      
       if(!ad) return alert("Personel adı girin.");
-      db.p.push({ id: Date.now(), ad, bolum, gorev, ise_baslama, egitim, saglik });
+      db.p.push({ id: Date.now(), ad, bolum, gorev, sinif, ise_baslama, egitim, saglik });
       sync(); personelCiz(); closeModal('modal-personel');
       document.getElementById('p_ad').value = '';
     }
@@ -392,6 +534,19 @@
       sync(); kazaCiz(); closeModal('modal-kaza');
     }
 
+    function hesaplaIstatistik() {
+      const fiiliSaat = parseFloat(document.getElementById('stat_fiili_saat').value) || 1;
+      const kazaSayisi = db.k.filter(x => x.tur !== 'Ramak Kala').length;
+      let toplamKayip = 0;
+      db.k.forEach(x => { if(x.tur !== 'Ramak Kala') toplamKayip += Number(x.gun)||0; });
+
+      const kso = ((kazaSayisi * 1000000) / fiiliSaat).toFixed(2);
+      const kao = ((toplamKayip * 1000) / fiiliSaat).toFixed(2);
+
+      document.getElementById('res_kso').innerText = kso;
+      document.getElementById('res_kao').innerText = kao;
+    }
+
     function sil(kat, id) {
       if(confirm("Silinsin mi?")) {
         db[kat] = db[kat].filter(x => x.id !== id);
@@ -410,7 +565,7 @@
       XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
     }
 
-    personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics();
+    personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
   </script>
 </body>
 </html>
