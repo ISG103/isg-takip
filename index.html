@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ECE TRAFO - İSG Yönetim Bilgi Sistemi</title>
-  <!-- SheetJS & FontAwesome -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -47,7 +46,8 @@
     .btn { padding: 8px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--brand-blue); color: white; }
     .btn-excel { background: #107c41; color: white; }
-    .btn-danger { background: var(--danger); color: white; padding: 4px 8px; font-size: 0.78rem; }
+    .btn-edit { background: #0284c7; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 4px; font-weight: bold; }
+    .btn-danger { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 4px; }
     .table-container { background: white; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
     th { background: #f8fafc; padding: 12px 14px; color: #334155; font-weight: 700; border-bottom: 1px solid var(--border); }
@@ -115,11 +115,11 @@
         <div class="metric-card"><div><div class="metric-title">Kaza Sayısı</div><div class="metric-num" id="stat_kaza">0</div></div><i class="fa-solid fa-bandage" style="font-size:1.5rem; color:#475569;"></i></div>
       </div>
 
-      <!-- 1. PERSONEL -->
+      <!-- 1. PERSONEL SEKMESİ -->
       <section id="sec-personel">
         <div class="table-actions">
           <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Personel, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
-          <button class="btn btn-primary" onclick="openModal('modal-personel')"><i class="fa-solid fa-plus"></i> Yeni Personel Ekle</button>
+          <button class="btn btn-primary" onclick="openPersonelModal()"><i class="fa-solid fa-plus"></i> Yeni Personel Ekle</button>
         </div>
         <div class="table-container">
           <table>
@@ -131,7 +131,7 @@
                 <th>İşe Başlama</th>
                 <th>İSG Eğitimi Bitiş</th>
                 <th>Periyodik Muayene Bitiş</th>
-                <th>İşlem</th>
+                <th style="min-width:140px; text-align:center;">İşlemler</th>
               </tr>
             </thead>
             <tbody id="personelTablo"></tbody>
@@ -283,10 +283,15 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL -->
+  <!-- MODAL: PERSONEL (EKLEME & DÜZENLEME) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
-      <div class="modal-header"><h3>Yeni Personel Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i></div>
+      <div class="modal-header">
+        <h3 id="modalPersonelBaslik">Yeni Personel Kaydı</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-personel')"></i>
+      </div>
+      <input type="hidden" id="p_edit_id">
+
       <div class="form-group"><label>Adı Soyadı</label><input type="text" id="p_ad" placeholder="Ad Soyad giriniz"></div>
       <div class="form-group">
         <label>Fabrika Bölümü / İstasyon</label>
@@ -325,7 +330,9 @@
         </div>
       </div>
 
-      <div class="modal-footer"><button class="btn btn-primary" onclick="personelEkle()">Kaydet</button></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Kaydet</button>
+      </div>
     </div>
   </div>
 
@@ -388,7 +395,6 @@
   </div>
 
   <script>
-    // BULUT VERİTABANI BAĞLANTISI (JSONBin.io)
     const BIN_ID = '6aba83d3ffd5d1605337f957';
     const MASTER_KEY = '$2a$10$AgSMqKfELFxqPVn8PEo3ie2lsSPAbvq/nawt/ATJSKDHJgJUjPs6u';
     const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
@@ -408,6 +414,18 @@
       }
     };
 
+    // ID'si olmayan eski kayıtlar varsa hepsine otomatik benzersiz ID ata
+    function idleriDuzenle() {
+      let degisti = false;
+      db.p.forEach((item, index) => {
+        if (!item.id) {
+          item.id = Date.now() + index;
+          degisti = true;
+        }
+      });
+      if (degisti) sync();
+    }
+
     function updateCloudStatus(status, text) {
       const el = document.getElementById('cloudStatus');
       if (status === 'loading') {
@@ -422,7 +440,6 @@
       }
     }
 
-    // BULUTTAN VERİLERİ ÇEK
     async function buluttanYukle() {
       updateCloudStatus('loading', 'Buluttan Alınıyor...');
       try {
@@ -440,7 +457,7 @@
             db.kkd = data.record.kkd || db.kkd;
             if (data.record.ayar) db.ayar = data.record.ayar;
             
-            // Yerel hafızayı güncelle
+            idleriDuzenle();
             for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
             updateCloudStatus('success', 'Bulut Canlı');
             cizimlerinHepsiniYenile();
@@ -454,7 +471,6 @@
       }
     }
 
-    // HEM YERELE HEM BULUTA KAYDET
     async function sync() {
       for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
       updateMetrics();
@@ -477,7 +493,7 @@
         }
       } catch (e) {
         console.error(e);
-        updateCloudStatus('error', 'İnternet Bağlantısı Yok');
+        updateCloudStatus('error', 'İnternet Yok');
       }
     }
 
@@ -582,33 +598,98 @@
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
       tbody.innerHTML = '';
-      db.p.filter(x => x.ad.toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q) || (x.gorev||'').toLowerCase().includes(q)).forEach(p => {
+      
+      db.p.filter(x => (x.ad||'').toLowerCase().includes(q) || (x.bolum||'').toLowerCase().includes(q) || (x.gorev||'').toLowerCase().includes(q)).forEach(p => {
         const e = getStatus(p.egitim);
         const s = getStatus(p.saglik);
+        const pid = p.id ? p.id : Date.now();
+        
         tbody.innerHTML += `<tr>
-          <td><strong>${p.ad}</strong></td>
+          <td><strong>${p.ad||'-'}</strong></td>
           <td>${p.bolum||'-'}</td>
           <td>${p.gorev||'-'}</td>
           <td>${p.ise_baslama||'-'}</td>
           <td><span class="badge ${e.cls}">${e.text}</span> <div style="font-size:10px; color:#64748b;">${p.egitim||''}</div></td>
           <td><span class="badge ${s.cls}">${s.text}</span> <div style="font-size:10px; color:#64748b;">${p.saglik||''}</div></td>
-          <td><button class="btn btn-danger" onclick="sil('p', ${p.id})"><i class="fa-solid fa-trash"></i></button></td>
+          <td style="text-align:center; white-space:nowrap;">
+            <button class="btn btn-edit" title="Personeli Düzenle" onclick="personelDuzenle('${pid}')">
+              <i class="fa-solid fa-pen-to-square"></i> Düzenle
+            </button>
+            <button class="btn btn-danger" title="Sil" onclick="sil('p', '${pid}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
         </tr>`;
       });
     }
 
-    function personelEkle() {
+    function openPersonelModal() {
+      document.getElementById('modalPersonelBaslik').innerText = "Yeni Personel Kaydı";
+      document.getElementById('btnPersonelKaydet').innerText = "Kaydet";
+      document.getElementById('p_edit_id').value = "";
+      document.getElementById('p_ad').value = '';
+      document.getElementById('p_gorev').value = '';
+      document.getElementById('p_ise_baslama').value = '';
+      document.getElementById('p_egitim_yapilis').value = '';
+      document.getElementById('p_egitim').value = '';
+      document.getElementById('p_saglik_yapilis').value = '';
+      document.getElementById('p_saglik').value = '';
+      openModal('modal-personel');
+    }
+
+    function personelDuzenle(id) {
+      const p = db.p.find(x => String(x.id) === String(id));
+      if(!p) {
+        alert("Personel kaydı bulunamadı.");
+        return;
+      }
+
+      document.getElementById('modalPersonelBaslik').innerText = "Personel Bilgilerini Düzenle: " + (p.ad || '');
+      document.getElementById('btnPersonelKaydet').innerText = "Değişiklikleri Güncelle";
+      document.getElementById('p_edit_id').value = p.id;
+      document.getElementById('p_ad').value = p.ad || '';
+      document.getElementById('p_bolum').value = p.bolum || 'Kazan Kaynak & Montaj Holü';
+      document.getElementById('p_gorev').value = p.gorev || '';
+      document.getElementById('p_ise_baslama').value = p.ise_baslama || '';
+      document.getElementById('p_egitim_yapilis').value = p.egitim_yapilis || '';
+      document.getElementById('p_egitim').value = p.egitim || '';
+      document.getElementById('p_saglik_yapilis').value = p.saglik_yapilis || '';
+      document.getElementById('p_saglik').value = p.saglik || '';
+
+      openModal('modal-personel');
+    }
+
+    function personelKaydet() {
+      const editId = document.getElementById('p_edit_id').value;
       const ad = document.getElementById('p_ad').value.trim();
       const bolum = document.getElementById('p_bolum').value;
       const gorev = document.getElementById('p_gorev').value.trim();
       const ise_baslama = document.getElementById('p_ise_baslama').value;
+      const egitim_yapilis = document.getElementById('p_egitim_yapilis').value;
       const egitim = document.getElementById('p_egitim').value;
+      const saglik_yapilis = document.getElementById('p_saglik_yapilis').value;
       const saglik = document.getElementById('p_saglik').value;
-      if(!ad) return alert("Personel adı girin.");
-      db.p.push({ id: Date.now(), ad, bolum, gorev, ise_baslama, egitim, saglik });
-      sync(); personelCiz(); closeModal('modal-personel');
-      document.getElementById('p_ad').value = '';
-      document.getElementById('p_gorev').value = '';
+      
+      if(!ad) return alert("Personel adı boş bırakılamaz.");
+
+      if(editId) {
+        const index = db.p.findIndex(x => String(x.id) === String(editId));
+        if(index !== -1) {
+          db.p[index] = {
+            ...db.p[index],
+            ad, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik
+          };
+        }
+      } else {
+        db.p.push({
+          id: Date.now(),
+          ad, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik
+        });
+      }
+
+      sync();
+      personelCiz();
+      closeModal('modal-personel');
     }
 
     function sertifikaCiz() {
@@ -616,7 +697,7 @@
       tbody.innerHTML = '';
       db.s.forEach(s => {
         const d = getStatus(s.bitis);
-        tbody.innerHTML += `<tr><td>${s.ad}</td><td>${s.tur}</td><td>${s.kurum||'-'}</td><td>${s.bitis||'-'}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('s', ${s.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${s.ad}</td><td>${s.tur}</td><td>${s.kurum||'-'}</td><td>${s.bitis||'-'}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('s', '${s.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function sertifikaEkle() {
@@ -634,7 +715,7 @@
       tbody.innerHTML = '';
       db.kkd.forEach(k => {
         const d = getStatus(k.degisim);
-        tbody.innerHTML += `<tr><td>${k.personel}</td><td>${k.tur}</td><td>${k.verilis}</td><td>${k.degisim}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('kkd', ${k.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${k.personel}</td><td>${k.tur}</td><td>${k.verilis}</td><td>${k.degisim}</td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn btn-danger" onclick="sil('kkd', '${k.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function kkdEkle() {
@@ -652,7 +733,7 @@
       const tbody = document.getElementById('dofTablo');
       tbody.innerHTML = '';
       db.dof.forEach(d => {
-        tbody.innerHTML += `<tr><td>${d.tarih}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn btn-danger" onclick="sil('dof', ${d.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${d.tarih}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn btn-danger" onclick="sil('dof', '${d.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function dofEkle() {
@@ -670,7 +751,7 @@
       const tbody = document.getElementById('izinTablo');
       tbody.innerHTML = '';
       db.izin.forEach(i => {
-        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn btn-danger" onclick="sil('izin', ${i.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn btn-danger" onclick="sil('izin', '${i.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function izinEkle() {
@@ -686,7 +767,7 @@
       const tbody = document.getElementById('kazaTablo');
       tbody.innerHTML = '';
       db.k.forEach(k => {
-        tbody.innerHTML += `<tr><td>${k.tarih}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn btn-danger" onclick="sil('k', ${k.id})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${k.tarih}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn btn-danger" onclick="sil('k', '${k.id}')"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function kazaEkle() {
@@ -713,7 +794,7 @@
 
     function sil(kat, id) {
       if(confirm("Silinsin mi? Bu işlem buluttan da silecektir.")) {
-        db[kat] = db[kat].filter(x => x.id !== id);
+        db[kat] = db[kat].filter(x => String(x.id) !== String(id));
         sync();
         if(kat==='p') personelCiz(); if(kat==='s') sertifikaCiz();
         if(kat==='kkd') kkdCiz(); if(kat==='dof') dofCiz();
@@ -735,7 +816,7 @@
       personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
     }
 
-    // İLK YÜKLEME VE BAŞLATMA
+    idleriDuzenle();
     cizimlerinHepsiniYenile();
     buluttanYukle();
   </script>
