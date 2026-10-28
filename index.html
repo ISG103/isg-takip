@@ -125,10 +125,9 @@
       <!-- 1. PERSONEL SEKMESİ -->
       <section id="sec-personel">
         <div class="table-actions">
-          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Personel, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Ad, T.C. No, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
           
           <div style="display:flex; gap:8px; align-items:center;">
-            <!-- EXCEL İÇE AKTARMA BUTONLARI -->
             <button class="btn btn-outline" onclick="ornekSablonIndir()"><i class="fa-solid fa-download"></i> Şablon Excel İndir</button>
             <input type="file" id="excelYukleInput" accept=".xlsx, .xls" style="display:none;" onchange="excelDosyasiOku(event)">
             <button class="btn btn-excel" onclick="document.getElementById('excelYukleInput').click()"><i class="fa-solid fa-file-import"></i> Excel'den Yükle</button>
@@ -140,7 +139,7 @@
           <table>
             <thead>
               <tr>
-                <th>Ad Soyad</th>
+                <th>Ad Soyad / T.C. No</th>
                 <th>Bölüm / İstasyon</th>
                 <th>Görevi / Pozisyon</th>
                 <th>İşe Başlama</th>
@@ -299,7 +298,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL -->
+  <!-- MODAL: PERSONEL (T.C. KİMLİK NO ENTEGRELİ) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -308,7 +307,17 @@
       </div>
       <input type="hidden" id="p_edit_index">
 
-      <div class="form-group"><label>Adı Soyadı</label><input type="text" id="p_ad" placeholder="Ad Soyad giriniz"></div>
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Adı Soyadı</label>
+          <input type="text" id="p_ad" placeholder="Ad Soyad giriniz">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>T.C. Kimlik No</label>
+          <input type="text" id="p_tc" maxlength="11" placeholder="11 Haneli TC No" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Fabrika Bölümü / İstasyon</label>
         <select id="p_bolum">
@@ -622,13 +631,19 @@
       });
     }
 
+    // PERSONEL LİSTESİ: TC NUMARASI VE AD SOYAD BİRLİKTE
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
       tbody.innerHTML = '';
       
       db.p.forEach((p, idx) => {
-        if ((p.ad||'').toLowerCase().includes(q) || (p.bolum||'').toLowerCase().includes(q) || (p.gorev||'').toLowerCase().includes(q)) {
+        const adMatch = (p.ad||'').toLowerCase().includes(q);
+        const tcMatch = (p.tc||'').toLowerCase().includes(q);
+        const bolumMatch = (p.bolum||'').toLowerCase().includes(q);
+        const gorevMatch = (p.gorev||'').toLowerCase().includes(q);
+
+        if (adMatch || tcMatch || bolumMatch || gorevMatch) {
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
 
@@ -638,9 +653,14 @@
               <i class="fa-solid fa-folder-open"></i> Evrak
             </button>`;
           }
+
+          const tcGosterim = p.tc ? `<div style="font-size:0.75rem; color:#64748b; font-weight:600;"><i class="fa-regular fa-id-card"></i> ${p.tc}</div>` : '';
           
           tbody.innerHTML += `<tr>
-            <td><strong>${p.ad||'-'}</strong></td>
+            <td>
+              <strong>${p.ad||'-'}</strong>
+              ${tcGosterim}
+            </td>
             <td>${p.bolum||'-'}</td>
             <td>${p.gorev||'-'}</td>
             <td>${trTarih(p.ise_baslama)}</td>
@@ -671,6 +691,7 @@
       document.getElementById('btnPersonelKaydet').innerText = "Kaydet";
       document.getElementById('p_edit_index').value = "-1";
       document.getElementById('p_ad').value = '';
+      document.getElementById('p_tc').value = '';
       document.getElementById('p_gorev').value = '';
       document.getElementById('p_ise_baslama').value = '';
       document.getElementById('p_egitim_yapilis').value = '';
@@ -689,6 +710,7 @@
       document.getElementById('btnPersonelKaydet').innerText = "Değişiklikleri Güncelle";
       document.getElementById('p_edit_index').value = idx;
       document.getElementById('p_ad').value = p.ad || '';
+      document.getElementById('p_tc').value = p.tc || '';
       document.getElementById('p_bolum').value = p.bolum || 'Kazan Kaynak & Montaj Holü';
       document.getElementById('p_gorev').value = p.gorev || '';
       document.getElementById('p_ise_baslama').value = p.ise_baslama || '';
@@ -704,6 +726,7 @@
     function personelKaydet() {
       const editIdx = parseInt(document.getElementById('p_edit_index').value);
       const ad = document.getElementById('p_ad').value.trim();
+      const tc = document.getElementById('p_tc').value.trim();
       const bolum = document.getElementById('p_bolum').value;
       const gorev = document.getElementById('p_gorev').value.trim();
       const ise_baslama = document.getElementById('p_ise_baslama').value;
@@ -715,7 +738,7 @@
       
       if(!ad) return alert("Personel adı boş bırakılamaz.");
 
-      const item = { ad, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
+      const item = { ad, tc, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
 
       if(editIdx >= 0 && editIdx < db.p.length) {
         db.p[editIdx] = item;
@@ -736,12 +759,11 @@
       }
     }
 
-    // ================= EXCEL İÇE AKTARMA (TOPLU PERSONEL YÜKLEME) =================
-    
-    // 1. Örnek Excel Şablonu İndir
+    // ================= EXCEL İÇE AKTARMA (T.C. KİMLİK NO ENTEGRELİ) =================
     function ornekSablonIndir() {
       const sablonVeri = [
         {
+          "T.C. Kimlik No": "12345678901",
           "Ad Soyad": "Ahmet Yılmaz",
           "Bölüm": "Kazan Kaynak & Montaj Holü",
           "Görevi": "Kaynakçı",
@@ -751,6 +773,7 @@
           "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG_Evraklari\\Ahmet_Yilmaz"
         },
         {
+          "T.C. Kimlik No": "98765432109",
           "Ad Soyad": "Mehmet Demir",
           "Bölüm": "Elektrik & Mekanik Bakım",
           "Görevi": "Elektrikçi",
@@ -767,7 +790,6 @@
       XLSX.writeFile(wb, "ECE_Trafo_Personel_Yukleme_Sablonu.xlsx");
     }
 
-    // Tarih Dönüştürücü (Excel seri tarihini YYYY-MM-DD yapar)
     function parseExcelDate(val) {
       if(!val) return '';
       if(val instanceof Date) return val.toISOString().slice(0, 10);
@@ -776,7 +798,6 @@
         return d.toISOString().slice(0, 10);
       }
       val = String(val).trim();
-      // GG.AA.YYYY gelirse YYYY-AA-GG yap
       if(val.includes('.')) {
         const p = val.split('.');
         if(p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
@@ -784,7 +805,6 @@
       return val;
     }
 
-    // 2. Excel Dosyasını Oku ve Sisteme Aktar
     function excelDosyasiOku(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -807,6 +827,7 @@
             const ad = r["Ad Soyad"] || r["Adı Soyadı"] || r["Personel"] || r["AD SOYAD"];
             if (!ad) return;
 
+            const tc = String(r["T.C. Kimlik No"] || r["TC Kimlik No"] || r["TC"] || r["TC NO"] || '').trim();
             const bolum = r["Bölüm"] || r["Bölümü"] || 'Kazan Kaynak & Montaj Holü';
             const gorev = r["Görevi"] || r["Pozisyon"] || r["Görevi / Pozisyonu"] || '';
             const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"] || r["İşe Başlama"] || r["İşe Giriş"]);
@@ -814,7 +835,6 @@
             const saglik_yapilis = parseExcelDate(r["Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)"] || r["Sağlık Muayenesi Tarihi"] || r["Muayene Tarihi"]);
             const evrak_yolu = r["Ortak Ağ Evrak Yolu"] || r["Evrak Yolu"] || '';
 
-            // Bitiş tarihlerini aktif fabrika sınıfına göre otomatik hesapla
             let egitim = '';
             if (egitim_yapilis) {
               let d = new Date(egitim_yapilis);
@@ -831,6 +851,7 @@
 
             db.p.push({
               ad: String(ad).trim(),
+              tc,
               bolum: String(bolum).trim(),
               gorev: String(gorev).trim(),
               ise_baslama,
@@ -846,11 +867,11 @@
 
           sync();
           personelCiz();
-          alert(`Tebrikler! Toplam ${eklenenSayisi} personel Excel'den sisteme ve buluta başarıyla aktarıldı.`);
-          event.target.value = ''; // Inputu temizle
+          alert(`Tebrikler! Toplam ${eklenenSayisi} personel Excel'den başarıyla aktarıldı.`);
+          event.target.value = '';
         } catch (err) {
           console.error(err);
-          alert("Excel dosyası okunurken hata oluştu. Lütfen dosyanın formatını kontrol edin.");
+          alert("Excel okunurken hata oluştu. Formatı kontrol edin.");
         }
       };
       reader.readAsArrayBuffer(file);
@@ -994,7 +1015,19 @@
 
     function excelIndir() {
       const wb = XLSX.utils.book_new();
-      if(db.p.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.p), "Personel");
+      if(db.p.length > 0) {
+        const pRapor = db.p.map(x => ({
+          "T.C. Kimlik No": x.tc || '',
+          "Adı Soyadı": x.ad || '',
+          "Bölüm": x.bolum || '',
+          "Görevi": x.gorev || '',
+          "İşe Başlama": trTarih(x.ise_baslama),
+          "İSG Eğitimi Bitiş": trTarih(x.egitim),
+          "Periyodik Muayene Bitiş": trTarih(x.saglik),
+          "Evrak Yolu": x.evrak_yolu || ''
+        }));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pRapor), "Personel");
+      }
       if(db.s.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.s), "Sertifikalar");
       if(db.dof.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.dof), "DOF");
       XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
