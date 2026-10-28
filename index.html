@@ -39,16 +39,20 @@
     .metric-card { background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .metric-num { font-size: 1.55rem; font-weight: 800; margin-top: 2px; }
     .metric-title { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-    .table-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; }
+    .table-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
     .search-box { position: relative; width: 320px; }
     .search-box input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.88rem; outline: none; }
     .search-box i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     .btn { padding: 8px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--brand-blue); color: white; }
     .btn-excel { background: #107c41; color: white; }
-    .btn-action-edit { background: #0284c7; color: white; padding: 6px 12px; font-size: 0.82rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-outline { background: white; color: #334155; border: 1px solid var(--border); }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-action-edit { background: #0284c7; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
     .btn-action-edit:hover { background: #0369a1; }
-    .btn-action-del { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.82rem; border-radius: 6px; cursor: pointer; border: none; }
+    .btn-action-del { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; cursor: pointer; border: none; }
+    .btn-action-folder { background: #059669; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-action-folder:hover { background: #047857; }
     .table-container { background: white; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
     th { background: #f8fafc; padding: 12px 14px; color: #334155; font-weight: 700; border-bottom: 1px solid var(--border); }
@@ -59,7 +63,7 @@
     .badge-danger { background: #fee2e2; color: var(--danger); }
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
     .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 540px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; width: 560px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
@@ -105,7 +109,9 @@
           <div class="cloud-badge" id="cloudStatus"><i class="fa-solid fa-cloud-arrow-up"></i> Bulut Hazır</div>
         </div>
       </div>
-      <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-excel" onclick="excelIndir()"><i class="fa-solid fa-file-excel"></i> Excel Çıktısı (.xlsx)</button>
+      </div>
     </header>
 
     <div class="content">
@@ -120,7 +126,15 @@
       <section id="sec-personel">
         <div class="table-actions">
           <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Personel, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
-          <button class="btn btn-primary" onclick="openPersonelModal()"><i class="fa-solid fa-plus"></i> Yeni Personel Ekle</button>
+          
+          <div style="display:flex; gap:8px; align-items:center;">
+            <!-- EXCEL İÇE AKTARMA BUTONLARI -->
+            <button class="btn btn-outline" onclick="ornekSablonIndir()"><i class="fa-solid fa-download"></i> Şablon Excel İndir</button>
+            <input type="file" id="excelYukleInput" accept=".xlsx, .xls" style="display:none;" onchange="excelDosyasiOku(event)">
+            <button class="btn btn-excel" onclick="document.getElementById('excelYukleInput').click()"><i class="fa-solid fa-file-import"></i> Excel'den Yükle</button>
+            
+            <button class="btn btn-primary" onclick="openPersonelModal()"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
+          </div>
         </div>
         <div class="table-container">
           <table>
@@ -132,6 +146,7 @@
                 <th>İşe Başlama</th>
                 <th>İSG Eğitimi Bitiş</th>
                 <th>Periyodik Muayene Bitiş</th>
+                <th>Ortak Ağ Evrakı</th>
                 <th style="min-width:140px; text-align:center;">İşlemler</th>
               </tr>
             </thead>
@@ -284,7 +299,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL (EKLEME & DÜZENLEME) -->
+  <!-- MODAL: PERSONEL -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -328,6 +343,13 @@
         <div class="form-group" style="margin-bottom:0;">
           <label>Sağlık Raporu Bitiş (Yenileme) Tarihi</label>
           <input type="date" id="p_saglik">
+        </div>
+      </div>
+
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="color:#166534; font-weight:700;"><i class="fa-solid fa-folder-open"></i> Ortak Ağ Evrak / Klasör Yolu</label>
+          <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
         </div>
       </div>
 
@@ -415,10 +437,9 @@
       }
     };
 
-    // TARİH FORMATLAYICI: YYYY-MM-DD -> GG.AA.YYYY
     function trTarih(dateStr) {
       if(!dateStr) return '-';
-      const parts = dateStr.split('-');
+      const parts = String(dateStr).split('-');
       if(parts.length === 3) {
         return `${parts[2]}.${parts[1]}.${parts[0]}`;
       }
@@ -592,7 +613,15 @@
       document.getElementById('stat_alarm').innerText = alarm;
     }
 
-    // PERSONEL LİSTESİ: GÜN.AY.YIL FORMATINDA VE DÜZENLE BUTONLU
+    function agYolunuKopyala(yol) {
+      if (!yol) return;
+      navigator.clipboard.writeText(yol).then(() => {
+        alert("Ortak Ağ Klasör Yolu Kopyalandı:\n\n" + yol + "\n\nŞimdi Dosya Gezginini açıp adres çubuğuna yapıştırabilirsiniz (Ctrl + V).");
+      }).catch(() => {
+        prompt("Aşağıdaki klasör yolunu kopyalayın (Ctrl + C):", yol);
+      });
+    }
+
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
@@ -602,6 +631,13 @@
         if ((p.ad||'').toLowerCase().includes(q) || (p.bolum||'').toLowerCase().includes(q) || (p.gorev||'').toLowerCase().includes(q)) {
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
+
+          let evrakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Girilmedi</span>`;
+          if (p.evrak_yolu && p.evrak_yolu.trim() !== '') {
+            evrakButonu = `<button class="btn-action-folder" title="${p.evrak_yolu}" onclick="agYolunuKopyala('${p.evrak_yolu.replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-folder-open"></i> Evrak
+            </button>`;
+          }
           
           tbody.innerHTML += `<tr>
             <td><strong>${p.ad||'-'}</strong></td>
@@ -616,6 +652,7 @@
               <span class="badge ${s.cls}">${s.text}</span>
               <div style="font-size:11px; font-weight:600; color:#475569; margin-top:2px;">${p.saglik ? trTarih(p.saglik) : ''}</div>
             </td>
+            <td>${evrakButonu}</td>
             <td style="text-align:center; white-space:nowrap;">
               <button class="btn-action-edit" onclick="personelDuzenleByIndex(${idx})">
                 <i class="fa-solid fa-pen-to-square"></i> Düzenle
@@ -640,6 +677,7 @@
       document.getElementById('p_egitim').value = '';
       document.getElementById('p_saglik_yapilis').value = '';
       document.getElementById('p_saglik').value = '';
+      document.getElementById('p_evrak_yolu').value = '';
       openModal('modal-personel');
     }
 
@@ -658,6 +696,7 @@
       document.getElementById('p_egitim').value = p.egitim || '';
       document.getElementById('p_saglik_yapilis').value = p.saglik_yapilis || '';
       document.getElementById('p_saglik').value = p.saglik || '';
+      document.getElementById('p_evrak_yolu').value = p.evrak_yolu || '';
 
       openModal('modal-personel');
     }
@@ -672,10 +711,11 @@
       const egitim = document.getElementById('p_egitim').value;
       const saglik_yapilis = document.getElementById('p_saglik_yapilis').value;
       const saglik = document.getElementById('p_saglik').value;
+      const evrak_yolu = document.getElementById('p_evrak_yolu').value.trim();
       
       if(!ad) return alert("Personel adı boş bırakılamaz.");
 
-      const item = { ad, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik };
+      const item = { ad, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
 
       if(editIdx >= 0 && editIdx < db.p.length) {
         db.p[editIdx] = item;
@@ -696,6 +736,127 @@
       }
     }
 
+    // ================= EXCEL İÇE AKTARMA (TOPLU PERSONEL YÜKLEME) =================
+    
+    // 1. Örnek Excel Şablonu İndir
+    function ornekSablonIndir() {
+      const sablonVeri = [
+        {
+          "Ad Soyad": "Ahmet Yılmaz",
+          "Bölüm": "Kazan Kaynak & Montaj Holü",
+          "Görevi": "Kaynakçı",
+          "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15",
+          "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10",
+          "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2025-05-10",
+          "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG_Evraklari\\Ahmet_Yilmaz"
+        },
+        {
+          "Ad Soyad": "Mehmet Demir",
+          "Bölüm": "Elektrik & Mekanik Bakım",
+          "Görevi": "Elektrikçi",
+          "İşe Başlama Tarihi (YYYY-AA-GG)": "2023-06-20",
+          "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2026-02-01",
+          "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2026-02-01",
+          "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG_Evraklari\\Mehmet_Demir"
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(sablonVeri);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Personel_Sablon");
+      XLSX.writeFile(wb, "ECE_Trafo_Personel_Yukleme_Sablonu.xlsx");
+    }
+
+    // Tarih Dönüştürücü (Excel seri tarihini YYYY-MM-DD yapar)
+    function parseExcelDate(val) {
+      if(!val) return '';
+      if(val instanceof Date) return val.toISOString().slice(0, 10);
+      if(typeof val === 'number') {
+        const d = new Date(Math.round((val - 25569) * 86400 * 1000));
+        return d.toISOString().slice(0, 10);
+      }
+      val = String(val).trim();
+      // GG.AA.YYYY gelirse YYYY-AA-GG yap
+      if(val.includes('.')) {
+        const p = val.split('.');
+        if(p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      }
+      return val;
+    }
+
+    // 2. Excel Dosyasını Oku ve Sisteme Aktar
+    function excelDosyasiOku(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+          if (rows.length === 0) {
+            alert("Seçilen Excel dosyasında kayıt bulunamadı.");
+            return;
+          }
+
+          let eklenenSayisi = 0;
+          rows.forEach(r => {
+            const ad = r["Ad Soyad"] || r["Adı Soyadı"] || r["Personel"] || r["AD SOYAD"];
+            if (!ad) return;
+
+            const bolum = r["Bölüm"] || r["Bölümü"] || 'Kazan Kaynak & Montaj Holü';
+            const gorev = r["Görevi"] || r["Pozisyon"] || r["Görevi / Pozisyonu"] || '';
+            const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"] || r["İşe Başlama"] || r["İşe Giriş"]);
+            const egitim_yapilis = parseExcelDate(r["Son İSG Eğitimi Tarihi (YYYY-AA-GG)"] || r["İSG Eğitimi Tarihi"] || r["Eğitim Tarihi"]);
+            const saglik_yapilis = parseExcelDate(r["Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)"] || r["Sağlık Muayenesi Tarihi"] || r["Muayene Tarihi"]);
+            const evrak_yolu = r["Ortak Ağ Evrak Yolu"] || r["Evrak Yolu"] || '';
+
+            // Bitiş tarihlerini aktif fabrika sınıfına göre otomatik hesapla
+            let egitim = '';
+            if (egitim_yapilis) {
+              let d = new Date(egitim_yapilis);
+              d.setFullYear(d.getFullYear() + db.ayar.egitimYil);
+              egitim = d.toISOString().slice(0, 10);
+            }
+
+            let saglik = '';
+            if (saglik_yapilis) {
+              let d = new Date(saglik_yapilis);
+              d.setFullYear(d.getFullYear() + db.ayar.saglikYil);
+              saglik = d.toISOString().slice(0, 10);
+            }
+
+            db.p.push({
+              ad: String(ad).trim(),
+              bolum: String(bolum).trim(),
+              gorev: String(gorev).trim(),
+              ise_baslama,
+              egitim_yapilis,
+              egitim,
+              saglik_yapilis,
+              saglik,
+              evrak_yolu: String(evrak_yolu).trim()
+            });
+
+            eklenenSayisi++;
+          });
+
+          sync();
+          personelCiz();
+          alert(`Tebrikler! Toplam ${eklenenSayisi} personel Excel'den sisteme ve buluta başarıyla aktarıldı.`);
+          event.target.value = ''; // Inputu temizle
+        } catch (err) {
+          console.error(err);
+          alert("Excel dosyası okunurken hata oluştu. Lütfen dosyanın formatını kontrol edin.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // ================= DİĞER MODÜLLER =================
     function sertifikaCiz() {
       const tbody = document.getElementById('sertifikaTablo');
       tbody.innerHTML = '';
