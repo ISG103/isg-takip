@@ -122,10 +122,10 @@
         <div class="metric-card"><div><div class="metric-title">Kaza Sayısı</div><div class="metric-num" id="stat_kaza">0</div></div><i class="fa-solid fa-bandage" style="font-size:1.5rem; color:#475569;"></i></div>
       </div>
 
-      <!-- 1. PERSONEL SEKMESİ -->
+      <!-- 1. PERSONEL SEKMESİ (BÖLÜM ÇIKARILDI) -->
       <section id="sec-personel">
         <div class="table-actions">
-          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Ad, T.C. No, Görev veya Bölüm Ara..." oninput="personelCiz()"></div>
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="p_ara" placeholder="Ad, T.C. No veya Görev Ara..." oninput="personelCiz()"></div>
           
           <div style="display:flex; gap:8px; align-items:center;">
             <button class="btn btn-outline" onclick="ornekSablonIndir()"><i class="fa-solid fa-download"></i> Şablon Excel İndir</button>
@@ -140,7 +140,6 @@
             <thead>
               <tr>
                 <th>Ad Soyad / T.C. No</th>
-                <th>Bölüm / İstasyon</th>
                 <th>Görevi / Pozisyon</th>
                 <th>İşe Başlama</th>
                 <th>İSG Eğitimi Bitiş</th>
@@ -298,7 +297,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL (T.C. KİMLİK NO ENTEGRELİ) -->
+  <!-- MODAL: PERSONEL (BÖLÜM ALANI ÇIKARILDI) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -319,19 +318,14 @@
       </div>
 
       <div class="form-group">
-        <label>Fabrika Bölümü / İstasyon</label>
-        <select id="p_bolum">
-          <option>Kazan Kaynak & Montaj Holü</option>
-          <option>Kumlama & Boyahane İstasyonu</option>
-          <option>Mekanik İşleme & CNC Atölyesi</option>
-          <option>Lazer & Giyotin Saç Kesim</option>
-          <option>Elektrik & Mekanik Bakım</option>
-          <option>Açık Saha & Sevkiyat</option>
-          <option>İdari İşler & Kalite</option>
-        </select>
+        <label>Görevi / Pozisyonu</label>
+        <input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen, Montaj Ustası">
       </div>
-      <div class="form-group"><label>Görevi / Pozisyonu</label><input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen"></div>
-      <div class="form-group"><label>İşe Başlama Tarihi</label><input type="date" id="p_ise_baslama"></div>
+      
+      <div class="form-group">
+        <label>İşe Başlama Tarihi</label>
+        <input type="date" id="p_ise_baslama">
+      </div>
       
       <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
         <div class="form-group">
@@ -631,7 +625,7 @@
       });
     }
 
-    // PERSONEL LİSTESİ: TC NUMARASI VE AD SOYAD BİRLİKTE
+    // PERSONEL LİSTESİ: BÖLÜM ÇIKARILDI, TABLO NETLEŞTİRİLDİ
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
@@ -640,10 +634,9 @@
       db.p.forEach((p, idx) => {
         const adMatch = (p.ad||'').toLowerCase().includes(q);
         const tcMatch = (p.tc||'').toLowerCase().includes(q);
-        const bolumMatch = (p.bolum||'').toLowerCase().includes(q);
         const gorevMatch = (p.gorev||'').toLowerCase().includes(q);
 
-        if (adMatch || tcMatch || bolumMatch || gorevMatch) {
+        if (adMatch || tcMatch || gorevMatch) {
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
 
@@ -661,8 +654,7 @@
               <strong>${p.ad||'-'}</strong>
               ${tcGosterim}
             </td>
-            <td>${p.bolum||'-'}</td>
-            <td>${p.gorev||'-'}</td>
+            <td><strong>${p.gorev||'-'}</strong></td>
             <td>${trTarih(p.ise_baslama)}</td>
             <td>
               <span class="badge ${e.cls}">${e.text}</span>
@@ -711,7 +703,6 @@
       document.getElementById('p_edit_index').value = idx;
       document.getElementById('p_ad').value = p.ad || '';
       document.getElementById('p_tc').value = p.tc || '';
-      document.getElementById('p_bolum').value = p.bolum || 'Kazan Kaynak & Montaj Holü';
       document.getElementById('p_gorev').value = p.gorev || '';
       document.getElementById('p_ise_baslama').value = p.ise_baslama || '';
       document.getElementById('p_egitim_yapilis').value = p.egitim_yapilis || '';
@@ -727,7 +718,6 @@
       const editIdx = parseInt(document.getElementById('p_edit_index').value);
       const ad = document.getElementById('p_ad').value.trim();
       const tc = document.getElementById('p_tc').value.trim();
-      const bolum = document.getElementById('p_bolum').value;
       const gorev = document.getElementById('p_gorev').value.trim();
       const ise_baslama = document.getElementById('p_ise_baslama').value;
       const egitim_yapilis = document.getElementById('p_egitim_yapilis').value;
@@ -738,7 +728,7 @@
       
       if(!ad) return alert("Personel adı boş bırakılamaz.");
 
-      const item = { ad, tc, bolum, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
+      const item = { ad, tc, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
 
       if(editIdx >= 0 && editIdx < db.p.length) {
         db.p[editIdx] = item;
@@ -759,13 +749,12 @@
       }
     }
 
-    // ================= EXCEL İÇE AKTARMA (T.C. KİMLİK NO ENTEGRELİ) =================
+    // ================= EXCEL İÇE AKTARMA (BÖLÜMSÜZ YENİ ŞABLON) =================
     function ornekSablonIndir() {
       const sablonVeri = [
         {
           "T.C. Kimlik No": "12345678901",
           "Ad Soyad": "Ahmet Yılmaz",
-          "Bölüm": "Kazan Kaynak & Montaj Holü",
           "Görevi": "Kaynakçı",
           "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15",
           "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10",
@@ -775,7 +764,6 @@
         {
           "T.C. Kimlik No": "98765432109",
           "Ad Soyad": "Mehmet Demir",
-          "Bölüm": "Elektrik & Mekanik Bakım",
           "Görevi": "Elektrikçi",
           "İşe Başlama Tarihi (YYYY-AA-GG)": "2023-06-20",
           "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2026-02-01",
@@ -828,7 +816,6 @@
             if (!ad) return;
 
             const tc = String(r["T.C. Kimlik No"] || r["TC Kimlik No"] || r["TC"] || r["TC NO"] || '').trim();
-            const bolum = r["Bölüm"] || r["Bölümü"] || 'Kazan Kaynak & Montaj Holü';
             const gorev = r["Görevi"] || r["Pozisyon"] || r["Görevi / Pozisyonu"] || '';
             const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"] || r["İşe Başlama"] || r["İşe Giriş"]);
             const egitim_yapilis = parseExcelDate(r["Son İSG Eğitimi Tarihi (YYYY-AA-GG)"] || r["İSG Eğitimi Tarihi"] || r["Eğitim Tarihi"]);
@@ -852,7 +839,6 @@
             db.p.push({
               ad: String(ad).trim(),
               tc,
-              bolum: String(bolum).trim(),
               gorev: String(gorev).trim(),
               ise_baslama,
               egitim_yapilis,
@@ -1019,7 +1005,6 @@
         const pRapor = db.p.map(x => ({
           "T.C. Kimlik No": x.tc || '',
           "Adı Soyadı": x.ad || '',
-          "Bölüm": x.bolum || '',
           "Görevi": x.gorev || '',
           "İşe Başlama": trTarih(x.ise_baslama),
           "İSG Eğitimi Bitiş": trTarih(x.egitim),
