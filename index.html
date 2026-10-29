@@ -61,13 +61,12 @@
     .badge-success { background: #dcfce7; color: var(--success); }
     .badge-warning { background: #fef3c7; color: var(--warning); }
     .badge-danger { background: #fee2e2; color: var(--danger); }
-    .badge-info { background: #e0f2fe; color: #0284c7; }
     .badge-season-kis { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
     .badge-season-yaz { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
     .badge-season-kkd { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
     .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 560px; border-radius: 8px; padding: 24px; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: white; width: 620px; border-radius: 8px; padding: 24px; max-height: 92vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
@@ -78,6 +77,11 @@
     .filter-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
     .filter-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.80rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: white; color: #475569; }
     .filter-btn.active { background: var(--brand-blue); color: white; border-color: var(--brand-blue); }
+
+    /* Kıyafet Satırı Tasarımı */
+    .kiyafet-satir { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; }
+    .kiyafet-satir input, .kiyafet-satir select { padding: 6px 8px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px; }
+    .btn-sil-satir { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
 
     .class-card { border: 2px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; background: white; display: flex; justify-content: space-between; align-items: center; }
     .class-card:hover { border-color: var(--brand-blue); background: #f8fafc; }
@@ -235,7 +239,6 @@
           <button class="btn btn-primary" onclick="openKkdModal()"><i class="fa-solid fa-plus"></i> KKD / Kıyafet Zimmetle</button>
         </div>
 
-        <!-- HIZLI MEVSİM FİLTRELERİ -->
         <div class="filter-tabs">
           <button class="filter-btn active" id="flt_kkd_all" onclick="setKkdFilter('all')"><i class="fa-solid fa-list"></i> Tümü</button>
           <button class="filter-btn" id="flt_kkd_kis" onclick="setKkdFilter('kis')"><i class="fa-solid fa-snowflake" style="color:#4338ca;"></i> Kışlık Kıyafetler</button>
@@ -327,7 +330,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL -->
+  <!-- MODAL: PERSONEL (TEK FORMDA ÇOKLU KIYAFET/KKD ENTEGRELİ) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -386,13 +389,28 @@
         </div>
       </div>
 
+      <!-- TEK SEFERDE ÇOKLU KIYAFET/KKD VERME ALANI -->
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:14px; border-radius:8px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div style="font-weight:700; color:#1e40af; font-size:0.86rem;">
+            <i class="fa-solid fa-shirt"></i> Personele Verilen Kıyafet & KKD Zimmetleri
+          </div>
+          <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="yeniKiyafetSatiriEkle()">
+            <i class="fa-solid fa-plus"></i> + Kıyafet / KKD Ekle
+          </button>
+        </div>
+        <div id="p_kiyafet_listesi_container">
+          <!-- Dinamik kıyafet satırları buraya basılır -->
+        </div>
+      </div>
+
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Kaydet</button>
+        <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Personel & Zimmetleri Kaydet</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: KKD & MEVSİMSEL KIYAFET ZİMMETİ -->
+  <!-- MODAL: TEKİL KKD / KIYAFET DÜZENLEME -->
   <div class="modal" id="modal-kkd">
     <div class="modal-content">
       <div class="modal-header">
@@ -734,6 +752,25 @@
       });
     }
 
+    // ================= DİNAMİK ÇOKLU KIYAFET SATIRLARI =================
+    function yeniKiyafetSatiriEkle(tur = '', beden = '', adet = '1', kategori = 'kis') {
+      const container = document.getElementById('p_kiyafet_listesi_container');
+      const div = document.createElement('div');
+      div.className = 'kiyafet-satir';
+      div.innerHTML = `
+        <select class="kiyafet-satir-kat" style="width:110px;">
+          <option value="kis" ${kategori==='kis'?'selected':''}>❄️ Kışlık</option>
+          <option value="yaz" ${kategori==='yaz'?'selected':''}>☀️ Yazlık</option>
+          <option value="std" ${kategori==='std'?'selected':''}>🛡️ KKD</option>
+        </select>
+        <input type="text" class="kiyafet-satir-tur" list="kiyafetOnerileri" placeholder="Kıyafet / KKD Adı" value="${tur}" style="flex:2;">
+        <input type="text" class="kiyafet-satir-beden" placeholder="Beden/No" value="${beden}" style="width:85px;">
+        <input type="number" class="kiyafet-satir-adet" value="${adet}" min="1" max="10" style="width:60px;">
+        <button type="button" class="btn-sil-satir" onclick="this.parentElement.remove()" title="Kaldır"><i class="fa-solid fa-trash"></i></button>
+      `;
+      container.appendChild(div);
+    }
+
     // ================= PERSONEL MODÜLÜ =================
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
@@ -786,7 +823,6 @@
         }
       });
 
-      // KKD modalındaki personel seçimi listesini otomatik güncelle
       const datalist = document.getElementById('personelListesiDatalist');
       if (datalist) {
         datalist.innerHTML = '';
@@ -798,7 +834,7 @@
 
     function openPersonelModal() {
       document.getElementById('modalPersonelBaslik').innerText = "Yeni Personel Kaydı";
-      document.getElementById('btnPersonelKaydet').innerText = "Kaydet";
+      document.getElementById('btnPersonelKaydet').innerText = "Personel & Zimmetleri Kaydet";
       document.getElementById('p_edit_index').value = "-1";
       document.getElementById('p_ad').value = '';
       document.getElementById('p_tc').value = '';
@@ -809,6 +845,13 @@
       document.getElementById('p_saglik_yapilis').value = '';
       document.getElementById('p_saglik').value = '';
       document.getElementById('p_evrak_yolu').value = '';
+      
+      // Kıyafet alanını sıfırla ve 2 örnek boş satır aç
+      const container = document.getElementById('p_kiyafet_listesi_container');
+      container.innerHTML = '';
+      yeniKiyafetSatiriEkle('Kışlık Su Geçirmez İş Montu', '', '1', 'kis');
+      yeniKiyafetSatiriEkle('S3 Çelik Burunlu İş Ayakkabısı', '', '1', 'std');
+
       openModal('modal-personel');
     }
 
@@ -829,6 +872,19 @@
       document.getElementById('p_saglik').value = p.saglik || '';
       document.getElementById('p_evrak_yolu').value = p.evrak_yolu || '';
 
+      // Bu personelin mevcut KKD ve kıyafetlerini bulup satırlara diz
+      const container = document.getElementById('p_kiyafet_listesi_container');
+      container.innerHTML = '';
+      const mevcutKkdler = db.kkd.filter(k => k.personel.trim().toLowerCase() === p.ad.trim().toLowerCase());
+      
+      if(mevcutKkdler.length > 0) {
+        mevcutKkdler.forEach(k => {
+          yeniKiyafetSatiriEkle(k.tur, k.beden, k.adet, k.kategori || 'kis');
+        });
+      } else {
+        yeniKiyafetSatiriEkle('', '', '1', 'kis');
+      }
+
       openModal('modal-personel');
     }
 
@@ -848,18 +904,60 @@
 
       const item = { ad, tc, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
 
+      // Eski personel adı değişirse KKD kayıtlarında da güncellemek için
+      let eskiAd = '';
       if(editIdx >= 0 && editIdx < db.p.length) {
+        eskiAd = db.p[editIdx].ad;
         db.p[editIdx] = item;
       } else {
         db.p.push(item);
       }
 
+      // ---------------- ÇOKLU KIYAFETLERİ İŞLEME VE KKD'YE YAZMA ----------------
+      // Eğer düzenleme yapılıyorsa bu personelin eski KKD'lerini temizleyip formdakileri ekleyelim
+      if(eskiAd) {
+        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== eskiAd.trim().toLowerCase());
+      } else {
+        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== ad.trim().toLowerCase());
+      }
+
+      const satirElemanlari = document.querySelectorAll('#p_kiyafet_listesi_container .kiyafet-satir');
+      const bugun = new Date().toISOString().slice(0, 10);
+
+      satirElemanlari.forEach(satir => {
+        const kat = satir.querySelector('.kiyafet-satir-kat').value;
+        const tur = satir.querySelector('.kiyafet-satir-tur').value.trim();
+        const beden = satir.querySelector('.kiyafet-satir-beden').value.trim();
+        const adet = satir.querySelector('.kiyafet-satir-adet').value || '1';
+
+        if(tur) {
+          // Bitiş tarihi: Kışlık/Yazlık için varsayılan 12 ay
+          let d = new Date();
+          d.setMonth(d.getMonth() + 12);
+          const degisim = d.toISOString().slice(0, 10);
+
+          db.kkd.push({
+            personel: ad,
+            kategori: kat,
+            tur: tur,
+            beden: beden,
+            adet: adet,
+            verilis: ise_baslama ? ise_baslama : bugun,
+            omur: '12',
+            degisim: degisim,
+            evrak_yolu: ''
+          });
+        }
+      });
+
       sync();
       personelCiz();
+      kkdCiz();
       closeModal('modal-personel');
+      alert(`Personel kaydı ve kıyafet zimmetleri tek seferde başarıyla kaydedildi!`);
     }
 
-    // ================= KKD & KIYAFET YÖNETİMİ =================
+    // ================= KKD & KIYAFET SEKMESİ İŞLEMLERİ =================
     function setKkdFilter(filterType) {
       aktifKkdFiltre = filterType;
       ['all', 'kis', 'yaz', 'std'].forEach(k => {
@@ -872,9 +970,7 @@
     function kkdKategoriDegisti() {
       const kat = document.getElementById('kkd_kategori').value;
       const omurSelect = document.getElementById('kkd_omur');
-      if (kat === 'kis') {
-        omurSelect.value = "12";
-      } else if (kat === 'yaz') {
+      if (kat === 'kis' || kat === 'yaz') {
         omurSelect.value = "12";
       }
       kkdYenilemeHesapla();
@@ -961,17 +1057,14 @@
       tbody.innerHTML = '';
 
       db.kkd.forEach((k, idx) => {
-        // Filtre kontrolü
         if (aktifKkdFiltre !== 'all' && (k.kategori || 'std') !== aktifKkdFiltre) return;
 
-        // Arama kontrolü
         const pMatch = (k.personel||'').toLowerCase().includes(q);
         const tMatch = (k.tur||'').toLowerCase().includes(q);
         if (!pMatch && !tMatch) return;
 
         const d = getStatus(k.degisim);
 
-        // Kategori Etiketi
         let katBadge = `<span class="badge badge-season-kkd"><i class="fa-solid fa-shield-halved"></i> Donanım</span>`;
         if (k.kategori === 'kis') {
           katBadge = `<span class="badge badge-season-kis"><i class="fa-solid fa-snowflake"></i> Kışlık</span>`;
@@ -979,7 +1072,6 @@
           katBadge = `<span class="badge badge-season-yaz"><i class="fa-solid fa-sun"></i> Yazlık</span>`;
         }
 
-        // Zimmet Tutanağı Butonu
         let tutanakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Yok</span>`;
         if (k.evrak_yolu && k.evrak_yolu.trim() !== '') {
           tutanakButonu = `<button class="btn-action-folder" title="${k.evrak_yolu}" onclick="agYolunuKopyala('${k.evrak_yolu.replace(/'/g, "\\'")}')">
