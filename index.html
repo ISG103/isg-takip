@@ -705,27 +705,46 @@
       return str;
     }
 
-    // TÜRKÇE KARAKTER DUYARLI AKILLI SERTİFİKA EŞLEŞTİRİCİ
+    // TÜRKÇE KARAKTER DUYARLI AKILLI METİN TEMİZLEYİCİ
     function normalizeTr(text) {
       if (!text) return '';
       return String(text)
         .replace(/İ/g, 'i')
         .replace(/I/g, 'ı')
+        .replace(/ı/g, 'i')
         .toLocaleLowerCase('tr')
         .trim();
     }
 
+    // İLK YARDIM KONTROLÜ (TÜM VARYASYONLAR)
+    function isIlkYardimci(text) {
+      const t = normalizeTr(text);
+      return t.includes('yardim') || t.includes('yardım') || t.includes('ilkyardim') || t.includes('ilk yardim');
+    }
+
+    // VİNÇ KONTROLÜ
+    function isVinc(text) {
+      const t = normalizeTr(text);
+      return t.includes('vinc') || t.includes('vinç') || t.includes('koprulu') || t.includes('köprülü') || t.includes('tavan');
+    }
+
+    // KAYNAK KONTROLÜ
+    function isKaynak(text) {
+      const t = normalizeTr(text);
+      return t.includes('kaynak') || t.includes('kaynakci') || t.includes('kaynakçı');
+    }
+
     function getCertBadgeHtml(tur) {
-      const t = normalizeTr(tur);
-      if (t.includes('ilk yardim') || t.includes('ilkyardim')) {
+      if (isIlkYardimci(tur)) {
         return `<span class="cert-badge cert-ilkyardim"><i class="fa-solid fa-heart-pulse"></i> İlk Yardımcı</span>`;
       }
-      if (t.includes('vinc') || t.includes('vinç') || t.includes('koprulu') || t.includes('köprülü') || t.includes('tavan')) {
+      if (isVinc(tur)) {
         return `<span class="cert-badge cert-vinc"><i class="fa-solid fa-dolly"></i> Köprülü Vinç</span>`;
       }
-      if (t.includes('kaynak') || t.includes('kaynakci') || t.includes('kaynakçı')) {
+      if (isKaynak(tur)) {
         return `<span class="cert-badge cert-kaynak"><i class="fa-solid fa-fire-burner"></i> Çelik Kaynakçısı</span>`;
       }
+      const t = normalizeTr(tur);
       if (t.includes('forklift')) {
         return `<span class="cert-badge cert-forklift"><i class="fa-solid fa-truck-ramp-box"></i> Forklift</span>`;
       }
@@ -869,25 +888,30 @@
       });
       document.getElementById('stat_alarm').innerText = alarm;
 
-      let ilkYardimSayisi = 0;
-      let vincSayisi = 0;
-      let kaynakSayisi = 0;
+      // Kişi bazlı tekil sayım için kümeler (Set)
+      const ilkYardimKumesi = new Set();
+      const vincKumesi = new Set();
+      const kaynakKumesi = new Set();
 
-      // Belgeleri normalize ederek say (Türkçe karakterleri ve kısaltmaları kaçırmaz)
+      // 1. Sertifikalar tablosundan tara
       db.s.forEach(s => {
-        const t = normalizeTr(s.tur);
-        if (t.includes('ilk yardim') || t.includes('ilkyardim')) {
-          ilkYardimSayisi++;
-        } else if (t.includes('vinc') || t.includes('vinç') || t.includes('koprulu') || t.includes('köprülü') || t.includes('tavan')) {
-          vincSayisi++;
-        } else if (t.includes('kaynak') || t.includes('kaynakci') || t.includes('kaynakçı')) {
-          kaynakSayisi++;
-        }
+        const adNorm = normalizeTr(s.ad);
+        if (isIlkYardimci(s.tur)) ilkYardimKumesi.add(adNorm);
+        if (isVinc(s.tur)) vincKumesi.add(adNorm);
+        if (isKaynak(s.tur)) kaynakKumesi.add(adNorm);
       });
 
-      document.getElementById('stat_ilkyardim').innerText = ilkYardimSayisi;
-      document.getElementById('stat_vinc').innerText = vincSayisi;
-      document.getElementById('stat_kaynak').innerText = kaynakSayisi;
+      // 2. Personel görev / pozisyonundan da tara (İK listesinden gelen unvanlar için)
+      db.p.forEach(p => {
+        const adNorm = normalizeTr(p.ad);
+        if (isIlkYardimci(p.gorev)) ilkYardimKumesi.add(adNorm);
+        if (isVinc(p.gorev)) vincKumesi.add(adNorm);
+        if (isKaynak(p.gorev)) kaynakKumesi.add(adNorm);
+      });
+
+      document.getElementById('stat_ilkyardim').innerText = ilkYardimKumesi.size;
+      document.getElementById('stat_vinc').innerText = vincKumesi.size;
+      document.getElementById('stat_kaynak').innerText = kaynakKumesi.size;
     }
 
     function agYolunuKopyala(yol) {
@@ -912,14 +936,26 @@
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
 
-          // Bu personelin sahip olduğu belgeleri çek (Ad eşleşmesi Türkçe karakter duyarlı)
+          // Bu personelin sahip olduğu belgeleri çek (Sertifikadan veya görevden)
           const personellerinSertifikalari = db.s.filter(x => normalizeTr(x.ad) === adNorm);
-          let certBadgesHtml = '';
-          if (personellerinSertifikalari.length > 0) {
-            certBadgesHtml = personellerinSertifikalari.map(x => getCertBadgeHtml(x.tur)).join(' ');
-          } else {
-            certBadgesHtml = `<span style="color:#94a3b8; font-size:0.75rem;">Standart</span>`;
+          let badgesArray = [];
+
+          personellerinSertifikalari.forEach(x => {
+            badgesArray.push(getCertBadgeHtml(x.tur));
+          });
+
+          // Eğer sertifikada yok ama görevinde ilk yardımcı yazıyorsa rozet bas
+          if (isIlkYardimci(p.gorev) && !badgesArray.some(b => b.includes('İlk Yardımcı'))) {
+            badgesArray.push(getCertBadgeHtml('İlk Yardımcı Sertifikası'));
           }
+          if (isVinc(p.gorev) && !badgesArray.some(b => b.includes('Köprülü Vinç'))) {
+            badgesArray.push(getCertBadgeHtml('Köprülü Vinç Operatörü'));
+          }
+          if (isKaynak(p.gorev) && !badgesArray.some(b => b.includes('Çelik Kaynakçısı'))) {
+            badgesArray.push(getCertBadgeHtml('Çelik Kaynakçısı (MYK)'));
+          }
+
+          let certBadgesHtml = badgesArray.length > 0 ? badgesArray.join(' ') : `<span style="color:#94a3b8; font-size:0.75rem;">Standart</span>`;
 
           let evrakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Yok</span>`;
           if (p.evrak_yolu && p.evrak_yolu.trim() !== '') {
