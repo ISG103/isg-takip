@@ -65,9 +65,10 @@
     .badge-danger { background: #fee2e2; color: var(--danger); }
     .badge-season-kis { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
     .badge-season-yaz { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-season-ozel { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
     .modal.active { opacity: 1; visibility: visible; }
-    .modal-content { background: white; width: 660px; border-radius: 8px; padding: 24px; max-height: 92vh; overflow-y: auto; }
+    .modal-content { background: white; width: 700px; border-radius: 8px; padding: 24px; max-height: 92vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: #475569; }
@@ -87,8 +88,7 @@
     .kiyafet-row select { width: 110px; padding: 4px 8px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px; }
     .kiyafet-row input[type="number"] { width: 65px; padding: 4px 6px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
 
-    .excel-import-box { border: 2px dashed #94a3b8; border-radius: 8px; padding: 20px; text-align: center; background: #f8fafc; cursor: pointer; margin-bottom: 16px; }
-    .excel-import-box:hover { border-color: var(--brand-blue); background: #f0f9ff; }
+    .ozel-kkd-box { background: #fefce8; border: 1px solid #fef08a; padding: 12px; border-radius: 6px; margin-top: 14px; }
 
     @media print {
       body * { visibility: hidden; }
@@ -225,19 +225,20 @@
       <!-- 4. KKD & MEVSİMSEL KIYAFET MODÜLÜ -->
       <section id="sec-kkd" class="hidden">
         <div class="table-actions">
-          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="kkd_ara" placeholder="Personel veya Kıyafet Ara..." oninput="kkdCiz()"></div>
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="kkd_ara" placeholder="Personel, Donanım veya Açıklama Ara..." oninput="kkdCiz()"></div>
         </div>
         <div class="table-container">
           <table>
             <thead>
               <tr>
                 <th>Personel Adı</th>
-                <th>Mevsim</th>
+                <th>Mevsim / Tür</th>
                 <th>Kıyafet / Donanım</th>
                 <th>Beden & Adet</th>
-                <th>Teslim / Veriliş Tarihi</th>
+                <th>Teslim Tarihi</th>
                 <th>Yenileme Tarihi</th>
                 <th>Durum</th>
+                <th>Açıklama / Not</th>
                 <th style="text-align:center;">İşlem</th>
               </tr>
             </thead>
@@ -278,7 +279,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL KAYIT & KIYAFET DAĞITIM -->
+  <!-- MODAL: PERSONEL KAYIT & MEVSİMSEL/GÜNLÜK-HAFTALIK KKD SEÇİMİ -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -327,20 +328,20 @@
         <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
       </div>
 
-      <!-- KIYAFET DAĞITIM LİSTESİ & TESLİM TARİHİ -->
+      <!-- KIYAFET DAĞITIM LİSTESİ & TESLİM TARİHİ (6 AY PERİYOT) -->
       <div style="border: 2px solid #cbd5e1; padding: 14px; border-radius: 8px; margin-top: 14px; background: #fafafa;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
           <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom:0;">
-            <i class="fa-solid fa-shirt"></i> Personele Kıyafet & Donanım Dağıtılacak mı?
+            <i class="fa-solid fa-shirt"></i> Mevsimlik Kıyafet Dağıtımı (6 Aylık Periyot)
           </label>
         </div>
         
         <div class="season-selector">
           <div class="season-radio-box selected-kis" id="btn_secim_kis" onclick="mevsimSecimiYap('kis')">
-            <i class="fa-solid fa-snowflake"></i> Kışlık Dağıtım
+            <i class="fa-solid fa-snowflake"></i> Kışlık Dağıtım (6 Ay)
           </div>
           <div class="season-radio-box" id="btn_secim_yaz" onclick="mevsimSecimiYap('yaz')">
-            <i class="fa-solid fa-sun"></i> Yazlık Dağıtım
+            <i class="fa-solid fa-sun"></i> Yazlık Dağıtım (6 Ay)
           </div>
           <div class="season-radio-box" id="btn_secim_yok" onclick="mevsimSecimiYap('yok')">
             <i class="fa-solid fa-ban"></i> Kıyafet Yok
@@ -426,6 +427,40 @@
         </div>
       </div>
 
+      <!-- GÜNLÜK / HAFTALIK / ÖZEL KKD VE AÇIKLAMA ALANI -->
+      <div class="ozel-kkd-box">
+        <label style="font-size: 0.88rem; font-weight: 800; color: #854d0e; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <i class="fa-solid fa-hand-holding-hand"></i> Günlük / Haftalık / Özel KKD Dağıtımı & Açıklama
+        </label>
+        
+        <div style="display:flex; gap:10px; margin-bottom:8px;">
+          <div style="flex:2;">
+            <input type="text" id="p_ozel_kkd_ad" placeholder="Örn: Toz Maskesi (FFP2), Nitril Eldiven, Siperlik">
+          </div>
+          <div style="width:90px;">
+            <input type="number" id="p_ozel_kkd_adet" value="1" min="1" max="100" placeholder="Adet">
+          </div>
+          <div style="width:130px;">
+            <select id="p_ozel_kkd_periyot">
+              <option value="gunluk">Günlük (1 Gün)</option>
+              <option value="haftalik" selected>Haftalık (7 Gün)</option>
+              <option value="aylik">1 Aylık</option>
+              <option value="mevsimlik">6 Aylık</option>
+              <option value="yillik">1 Yıllık</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <div style="width:160px;">
+            <input type="date" id="p_ozel_kkd_tarih">
+          </div>
+          <div style="flex:1;">
+            <input type="text" id="p_ozel_kkd_aciklama" placeholder="Açıklama / Not: (Örn: Kazan içi kaynak işi için verildi)">
+          </div>
+        </div>
+      </div>
+
       <div class="modal-footer">
         <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Kaydet</button>
       </div>
@@ -440,27 +475,25 @@
         <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-excel-secim')"></i>
       </div>
       <p style="font-size:0.86rem; color:#475569; margin-bottom:16px;">
-        Seçilen Excel dosyasında <strong id="lbl_okunan_kisi_sayisi">0</strong> personel bulundu. Personel sirkülasyonu durumunuza göre aşağıdaki yöntemlerden birini seçin:
+        Seçilen Excel dosyasında <strong id="lbl_okunan_kisi_sayisi">0</strong> personel bulundu.
       </p>
 
       <div style="display:flex; flex-direction:column; gap:12px;">
-        <!-- SEÇENEK 1: TAM SIFIRLAMA & SENKRONİZASYON (EN ÇOK İSTENEN) -->
         <div style="border:2px solid #ef4444; border-radius:8px; padding:14px; background:#fef2f2; cursor:pointer;" onclick="excelUygula('sifirla')">
           <div style="font-weight:800; color:#b91c1c; font-size:0.95rem; margin-bottom:4px;">
-            <i class="fa-solid fa-arrows-rotate"></i> 1. Tüm Listeyi Sıfırla ve Yeni Listeyi Yükle (Tavsiye Edilen)
+            <i class="fa-solid fa-arrows-rotate"></i> 1. Tüm Listeyi Sıfırla ve Yeni Listeyi Yükle
           </div>
           <div style="font-size:0.80rem; color:#7f1d1d; line-height:1.4;">
-            Mevcut eski personel listesini tamamen temizler ve sadece bu Excel'deki güncel personelleri yükler. <strong>İşten ayrılan personeller sistemden kalkmış olur, liste asla karışmaz.</strong>
+            Mevcut eski personel listesini temizler ve sadece bu Excel'dekileri yükler. Ayrılan personeller kalkar.
           </div>
         </div>
 
-        <!-- SEÇENEK 2: TC'YE GÖRE GÜNCELLEME (MEVCUTLARI KORU / YENİLERİ EKLE) -->
         <div style="border:2px solid #0284c7; border-radius:8px; padding:14px; background:#f0f9ff; cursor:pointer;" onclick="excelUygula('birlestir')">
           <div style="font-weight:800; color:#0369a1; font-size:0.95rem; margin-bottom:4px;">
             <i class="fa-solid fa-user-pen"></i> 2. Mevcutları Güncelle / Yenileri Ekle
           </div>
           <div style="font-size:0.80rem; color:#075985; line-height:1.4;">
-            Aynı T.C. Kimlik No veya isimdeki personelleri tekrar eklemez, tarihlerini günceller. Listede olmayan yeni personelleri ekler.
+            Aynı T.C. Kimlik No veya isimdeki personelleri mükerrer eklemez, bilgilerini günceller.
           </div>
         </div>
       </div>
@@ -471,7 +504,7 @@
     </div>
   </div>
 
-  <!-- YAZDIRMA ALANI (RESMİ ECE EGE YAPI A.Ş. ZİMMET TUTANAĞI) -->
+  <!-- YAZDIRMA ALANI -->
   <div id="print-area" style="display:none; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: white;">
     <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
       <div>
@@ -494,7 +527,7 @@
       <tr>
         <td style="border: 1px solid #000; padding: 8px; font-weight: bold; background: #f2f2f2;">Görevi / Pozisyonu</td>
         <td style="border: 1px solid #000; padding: 8px;" id="print_gorev"></td>
-        <td style="border: 1px solid #000; padding: 8px; font-weight: bold; background: #f2f2f2;">Mevsim / Dağıtım Dönemi</td>
+        <td style="border: 1px solid #000; padding: 8px; font-weight: bold; background: #f2f2f2;">Dağıtım Türü / Açıklama</td>
         <td style="border: 1px solid #000; padding: 8px;" id="print_sezon"></td>
       </tr>
     </table>
@@ -503,11 +536,11 @@
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.88rem;">
       <thead>
         <tr style="background: #f2f2f2;">
-          <th style="border: 1px solid #000; padding: 8px; width: 8%; text-align: center;">S.No</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 6%; text-align: center;">S.No</th>
           <th style="border: 1px solid #000; padding: 8px;">Malzeme / Kıyafet Adı</th>
-          <th style="border: 1px solid #000; padding: 8px; width: 20%;">Beden / Numara</th>
-          <th style="border: 1px solid #000; padding: 8px; width: 14%; text-align: center;">Miktar</th>
-          <th style="border: 1px solid #000; padding: 8px; width: 18%; text-align: center;">Durumu</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 16%;">Beden / Numara</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 12%; text-align: center;">Miktar</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 28%;">Açıklama / Kullanım Notu</th>
         </tr>
       </thead>
       <tbody id="print_malzeme_listesi"></tbody>
@@ -556,13 +589,26 @@
     };
 
     let secilenMevsim = 'kis';
-    let yuklenecekGeciciExcelRows = []; // Excel'den okunan satırların geçici tutulduğu dizi
+    let yuklenecekGeciciExcelRows = [];
 
     function trTarih(dateStr) {
       if(!dateStr) return '-';
       const parts = String(dateStr).split('-');
       if(parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
       return dateStr;
+    }
+
+    function parseTcNo(val) {
+      if (!val && val !== 0) return '';
+      let str = '';
+      if (typeof val === 'number') {
+        str = val.toLocaleString('fullwide', { useGrouping: false });
+      } else {
+        str = String(val).trim();
+      }
+      str = str.replace(/[^0-9]/g, '');
+      if (str.length > 11) str = str.slice(0, 11);
+      return str;
     }
 
     function updateCloudStatus(status, text) {
@@ -632,7 +678,7 @@
         personel: 'Personel Eğitim & Sağlık İzleme',
         siniflar: 'İSG Tehlike Sınıfı ve Periyot Ayarları',
         sertifika: 'İlk Yardımcı, MYK ve Sertifika Yönetimi',
-        kkd: 'KKD & Mevsimlik Kıyafet Zimmet Takibi',
+        kkd: 'KKD & Kıyafet Takip Paneli',
         dof: 'DÖF & Saha Denetimi', izin: 'Özel İş İzinleri (PTW)', kazalar: 'İş Kazaları Defteri', istatistik: 'SGK Kaza Oranları'
       };
       document.getElementById('pageTitle').innerText = titles[target] || 'İSG Sistemi';
@@ -685,7 +731,7 @@
       today.setHours(0,0,0,0);
       const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
       if (diff < 0) return { text: `Süresi Doldu (${Math.abs(diff)} gün)`, cls: "badge-danger", diff };
-      if (diff <= 60) return { text: `Yaklaştı (${diff} gün)`, cls: "badge-warning", diff };
+      if (diff <= 15) return { text: `Yaklaştı (${diff} gün)`, cls: "badge-warning", diff };
       return { text: `Geçerli (${diff} gün)`, cls: "badge-success", diff };
     }
 
@@ -770,6 +816,13 @@
       document.getElementById('p_saglik').value = '';
       document.getElementById('p_evrak_yolu').value = '';
       
+      // Özel KKD alanlarını sıfırla
+      document.getElementById('p_ozel_kkd_ad').value = '';
+      document.getElementById('p_ozel_kkd_adet').value = '1';
+      document.getElementById('p_ozel_kkd_periyot').value = 'haftalik';
+      document.getElementById('p_ozel_kkd_tarih').value = bugun;
+      document.getElementById('p_ozel_kkd_aciklama').value = '';
+
       mevsimSecimiYap('kis');
       openModal('modal-personel');
     }
@@ -791,8 +844,15 @@
       document.getElementById('p_saglik').value = p.saglik || '';
       document.getElementById('p_evrak_yolu').value = p.evrak_yolu || '';
 
+      const bugun = new Date().toISOString().slice(0, 10);
       const mevcutZimmet = db.kkd.find(k => k.personel.trim().toLowerCase() === p.ad.trim().toLowerCase());
-      document.getElementById('p_kiyafet_teslim_tarihi').value = (mevcutZimmet && mevcutZimmet.verilis) ? mevcutZimmet.verilis : (p.ise_baslama || new Date().toISOString().slice(0, 10));
+      document.getElementById('p_kiyafet_teslim_tarihi').value = (mevcutZimmet && mevcutZimmet.verilis) ? mevcutZimmet.verilis : (p.ise_baslama || bugun);
+
+      // Özel KKD sıfırla
+      document.getElementById('p_ozel_kkd_ad').value = '';
+      document.getElementById('p_ozel_kkd_adet').value = '1';
+      document.getElementById('p_ozel_kkd_tarih').value = bugun;
+      document.getElementById('p_ozel_kkd_aciklama').value = '';
 
       mevsimSecimiYap(p.sonSezon || 'yok');
       openModal('modal-personel');
@@ -801,7 +861,7 @@
     function personelKaydet() {
       const editIdx = parseInt(document.getElementById('p_edit_index').value);
       const ad = document.getElementById('p_ad').value.trim();
-      const tc = document.getElementById('p_tc').value.trim();
+      const tc = parseTcNo(document.getElementById('p_tc').value);
       const gorev = document.getElementById('p_gorev').value.trim();
       const ise_baslama = document.getElementById('p_ise_baslama').value;
       const egitim_yapilis = document.getElementById('p_egitim_yapilis').value;
@@ -824,49 +884,80 @@
       }
 
       const hedefAd = eskiAd || ad;
+
+      // 1. MEVSİMSEL KIYAFETLER (6 AYLIK SÜRE)
       if (secilenMevsim !== 'yok') {
-        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== hedefAd.trim().toLowerCase());
+        // Sadece mevsimlik olanları temizle (özel kkd'ler kalsın)
+        db.kkd = db.kkd.filter(k => !(k.personel.trim().toLowerCase() === hedefAd.trim().toLowerCase() && (k.kategori === 'kis' || k.kategori === 'yaz')));
+        
         let bitisD = new Date(teslimTarihi);
-        bitisD.setFullYear(bitisD.getFullYear() + 1);
+        bitisD.setMonth(bitisD.getMonth() + 6); // TAM 6 AY (180 GÜN)
         const bitisStr = bitisD.toISOString().slice(0, 10);
 
         if (secilenMevsim === 'kis') {
           if (document.getElementById('chk_kis_mont').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Mont', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Mont', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Kış Sezonu Kıyafeti (6 Ay)' });
           }
           if (document.getElementById('chk_kis_polar_ferm').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Fermuarlı Polar', beden: document.getElementById('beden_kis_polar_ferm').value, adet: parseInt(document.getElementById('adet_kis_polar_ferm').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Fermuarlı Polar', beden: document.getElementById('beden_kis_polar_ferm').value, adet: parseInt(document.getElementById('adet_kis_polar_ferm').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Kış Sezonu Kıyafeti (6 Ay)' });
           }
           if (document.getElementById('chk_kis_polar_uzun').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Uzun Kollu Polar', beden: document.getElementById('beden_kis_polar_uzun').value, adet: parseInt(document.getElementById('adet_kis_polar_uzun').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Uzun Kollu Polar', beden: document.getElementById('beden_kis_polar_uzun').value, adet: parseInt(document.getElementById('adet_kis_polar_uzun').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Kış Sezonu Kıyafeti (6 Ay)' });
           }
           if (document.getElementById('chk_kis_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Kış Sezonu Kıyafeti (6 Ay)' });
           }
           if (document.getElementById('chk_kis_ayakkabi').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_kis_ayakkabi').value, adet: parseInt(document.getElementById('adet_kis_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_kis_ayakkabi').value, adet: parseInt(document.getElementById('adet_kis_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Kış Sezonu Ayakkabısı (6 Ay)' });
           }
         } else if (secilenMevsim === 'yaz') {
           if (document.getElementById('chk_yaz_kisa_tshirt').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Kısa Kollu Tişört', beden: document.getElementById('beden_yaz_kisa_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_kisa_tshirt').value)||2, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Kısa Kollu Tişört', beden: document.getElementById('beden_yaz_kisa_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_kisa_tshirt').value)||2, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Yaz Sezonu Tişörtü (6 Ay)' });
           }
           if (document.getElementById('chk_yaz_uzun_tshirt').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Uzun Kollu Tişört', beden: document.getElementById('beden_yaz_uzun_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_uzun_tshirt').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Uzun Kollu Tişört', beden: document.getElementById('beden_yaz_uzun_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_uzun_tshirt').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Yaz Sezonu Tişörtü (6 Ay)' });
           }
           if (document.getElementById('chk_yaz_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Yaz Sezonu Kıyafeti (6 Ay)' });
           }
           if (document.getElementById('chk_yaz_ayakkabi').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr, aciklama: 'Yaz Sezonu Ayakkabısı (6 Ay)' });
           }
         }
+      }
+
+      // 2. GÜNLÜK / HAFTALIK / ÖZEL KKD VE AÇIKLAMA KAYDI
+      const ozelAd = document.getElementById('p_ozel_kkd_ad').value.trim();
+      const ozelAdet = parseInt(document.getElementById('p_ozel_kkd_adet').value) || 1;
+      const ozelPeriyot = document.getElementById('p_ozel_kkd_periyot').value;
+      const ozelTarih = document.getElementById('p_ozel_kkd_tarih').value || new Date().toISOString().slice(0, 10);
+      const ozelAciklama = document.getElementById('p_ozel_kkd_aciklama').value.trim();
+
+      if (ozelAd) {
+        let ozelBitis = new Date(ozelTarih);
+        if (ozelPeriyot === 'gunluk') ozelBitis.setDate(ozelBitis.getDate() + 1);
+        else if (ozelPeriyot === 'haftalik') ozelBitis.setDate(ozelBitis.getDate() + 7);
+        else if (ozelPeriyot === 'aylik') ozelBitis.setMonth(ozelBitis.getMonth() + 1);
+        else if (ozelPeriyot === 'mevsimlik') ozelBitis.setMonth(ozelBitis.getMonth() + 6);
+        else ozelBitis.setFullYear(ozelBitis.getFullYear() + 1);
+
+        db.kkd.push({
+          personel: ad,
+          kategori: 'ozel',
+          tur: ozelAd,
+          beden: 'Standart',
+          adet: ozelAdet,
+          verilis: ozelTarih,
+          degisim: ozelBitis.toISOString().slice(0, 10),
+          aciklama: ozelAciklama || 'Özel KKD Dağıtımı'
+        });
       }
 
       sync();
       personelCiz();
       kkdCiz();
       closeModal('modal-personel');
-      alert(`${ad} personeli ve kıyafet zimmetleri kaydedildi!`);
+      alert(`${ad} personeli ve kıyafet/KKD kayıtları kaydedildi!`);
     }
 
     // ================= RESMİ ZİMMET TUTANAĞI YAZDIRMA =================
@@ -884,7 +975,7 @@
       document.getElementById('print_ad').innerText = p.ad || '-';
       document.getElementById('print_tc').innerText = p.tc || '-';
       document.getElementById('print_gorev').innerText = p.gorev || '-';
-      document.getElementById('print_sezon').innerText = (p.sonSezon === 'kis' ? 'KIŞLIK DAĞITIM DÖNEMİ' : (p.sonSezon === 'yaz' ? 'YAZLIK DAĞITIM DÖNEMİ' : 'GENEL DONANIM'));
+      document.getElementById('print_sezon').innerText = (p.sonSezon === 'kis' ? 'KIŞLIK DÖNEM (6 AY)' : (p.sonSezon === 'yaz' ? 'YAZLIK DÖNEM (6 AY)' : 'GENEL DAĞITIM'));
       document.getElementById('print_imza_ad').innerText = p.ad;
 
       const tbody = document.getElementById('print_malzeme_listesi');
@@ -896,7 +987,7 @@
             <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${m.tur}</td>
             <td style="border: 1px solid #000; padding: 6px;">${m.beden || '-'}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${m.adet || 1} ${m.tur.includes('Ayakkabı') ? 'Çift' : 'Adet'}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">Kullanılmamış / Sıfır</td>
+            <td style="border: 1px solid #000; padding: 6px; font-size: 0.80rem;">${m.aciklama || 'Kullanıma Hazır / Sıfır'}</td>
           </tr>
         `;
       });
@@ -914,9 +1005,15 @@
       tbody.innerHTML = '';
 
       db.kkd.forEach((k, idx) => {
-        if ((k.personel||'').toLowerCase().includes(q) || (k.tur||'').toLowerCase().includes(q)) {
+        const pMatch = (k.personel||'').toLowerCase().includes(q);
+        const tMatch = (k.tur||'').toLowerCase().includes(q);
+        const aMatch = (k.aciklama||'').toLowerCase().includes(q);
+
+        if (pMatch || tMatch || aMatch) {
           const d = getStatus(k.degisim);
-          let katBadge = k.kategori === 'kis' ? `<span class="badge badge-season-kis">Kışlık</span>` : `<span class="badge badge-season-yaz">Yazlık</span>`;
+          let katBadge = `<span class="badge badge-season-ozel">Özel / Günlük</span>`;
+          if (k.kategori === 'kis') katBadge = `<span class="badge badge-season-kis">Kışlık (6 Ay)</span>`;
+          else if (k.kategori === 'yaz') katBadge = `<span class="badge badge-season-yaz">Yazlık (6 Ay)</span>`;
 
           tbody.innerHTML += `<tr>
             <td><strong>${k.personel}</strong></td>
@@ -926,6 +1023,7 @@
             <td>${trTarih(k.verilis)}</td>
             <td><strong>${trTarih(k.degisim)}</strong></td>
             <td><span class="badge ${d.cls}">${d.text}</span></td>
+            <td style="font-size:0.80rem; color:#475569;">${k.aciklama || '-'}</td>
             <td style="text-align:center;">
               <button class="btn-action-del" title="Sil" onclick="silByIndex('kkd', ${idx})"><i class="fa-solid fa-trash"></i></button>
             </td>
@@ -1020,9 +1118,17 @@
       }
     }
 
-    // ================= AKILLI EXCEL YÖNETİMİ =================
+    // ================= EXCEL YÖNETİMİ =================
     function ornekSablonIndir() {
-      const sablonVeri = [{ "T.C. Kimlik No": "12345678901", "Ad Soyad": "Ahmet Yılmaz", "Görevi": "Kaynakçı", "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15", "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10", "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2025-05-10", "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG\\Ahmet" }];
+      const sablonVeri = [{
+        "T.C. Kimlik No": "12345678901",
+        "Ad Soyad": "Ahmet Yılmaz",
+        "Görevi": "Kaynakçı",
+        "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15",
+        "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10",
+        "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2025-05-10",
+        "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG\\Ahmet"
+      }];
       const ws = XLSX.utils.json_to_sheet(sablonVeri);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Sablon");
@@ -1038,7 +1144,6 @@
       return val;
     }
 
-    // Excel Dosyası Seçildiğinde Önce Oku ve Seçim Modalını Aç
     function excelHazirla(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1047,7 +1152,7 @@
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+          const workbook = XLSX.read(data, { type: 'array', cellDates: true, raw: false });
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
           
           if (rows.length === 0) {
@@ -1061,33 +1166,67 @@
           event.target.value = '';
         } catch (err) {
           console.error(err);
-          alert("Excel dosyası okunurken hata oluştu. Lütfen formatı kontrol edin.");
+          alert("Excel dosyası okunurken hata oluştu. Formatı kontrol edin.");
         }
       };
       reader.readAsArrayBuffer(file);
     }
 
-    // Kullanıcının Seçimine Göre Listeyi İçe Aktar
     function excelUygula(mod) {
       if (!yuklenecekGeciciExcelRows || yuklenecekGeciciExcelRows.length === 0) return;
 
       let yeniListe = [];
       if (mod === 'birlestir') {
-        yeniListe = [...db.p]; // Mevcutları koru
+        yeniListe = [...db.p];
       }
 
       let eklenen = 0, guncellenen = 0;
 
       yuklenecekGeciciExcelRows.forEach(r => {
-        const ad = r["Ad Soyad"] || r["Adı Soyadı"] || r["Personel"] || r["AD SOYAD"];
+        const keys = Object.keys(r);
+        
+        let adKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t === "ad soyad" || t === "adı soyadı" || t === "personel" || t === "ad" || t === "isim";
+        });
+        const ad = adKey ? r[adKey] : '';
         if (!ad) return;
 
-        const tc = String(r["T.C. Kimlik No"] || r["TC"] || r["TC NO"] || '').trim();
-        const gorev = r["Görevi"] || r["Pozisyon"] || '';
-        const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"] || r["İşe Başlama"] || r["İşe Giriş"]);
-        const egitim_yapilis = parseExcelDate(r["Son İSG Eğitimi Tarihi (YYYY-AA-GG)"] || r["Eğitim Tarihi"]);
-        const saglik_yapilis = parseExcelDate(r["Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)"] || r["Muayene Tarihi"]);
-        const evrak_yolu = r["Ortak Ağ Evrak Yolu"] || r["Evrak Yolu"] || '';
+        let tcKey = keys.find(k => {
+          const t = k.trim().toLowerCase().replace(/[\.\s_-]/g, '');
+          return t === "tckimlikno" || t === "tcno" || t === "tc" || t === "tckn" || t === "kimlikno" || t === "tckimlik";
+        });
+        const tc = parseTcNo(tcKey ? r[tcKey] : '');
+
+        let gorevKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t === "görevi" || t === "gorev" || t === "pozisyon" || t === "unvan";
+        });
+        const gorev = gorevKey ? r[gorevKey] : '';
+
+        let iseKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t.includes("başlama") || t.includes("giris") || t.includes("giriş");
+        });
+        const ise_baslama = parseExcelDate(iseKey ? r[iseKey] : '');
+
+        let egitimKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t.includes("eğitim") || t.includes("egitim");
+        });
+        const egitim_yapilis = parseExcelDate(egitimKey ? r[egitimKey] : '');
+
+        let saglikKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t.includes("sağlık") || t.includes("saglik") || t.includes("muayene");
+        });
+        const saglik_yapilis = parseExcelDate(saglikKey ? r[saglikKey] : '');
+
+        let evrakKey = keys.find(k => {
+          const t = k.trim().toLowerCase();
+          return t.includes("evrak") || t.includes("klasör") || t.includes("yol");
+        });
+        const evrak_yolu = evrakKey ? r[evrakKey] : '';
 
         let egitim = '', saglik = '';
         if (egitim_yapilis) {
@@ -1103,7 +1242,7 @@
 
         const personelObj = {
           ad: String(ad).trim(),
-          tc,
+          tc: tc,
           gorev: String(gorev).trim(),
           ise_baslama,
           egitim_yapilis,
@@ -1118,7 +1257,6 @@
           yeniListe.push(personelObj);
           eklenen++;
         } else {
-          // Birleştir modunda TC veya İsim kontrolü
           let mevcutIndex = -1;
           if (tc && tc !== '') {
             mevcutIndex = yeniListe.findIndex(x => x.tc === tc);
@@ -1128,11 +1266,9 @@
           }
 
           if (mevcutIndex !== -1) {
-            // Var olanı güncelle
             yeniListe[mevcutIndex] = { ...yeniListe[mevcutIndex], ...personelObj };
             guncellenen++;
           } else {
-            // Yeni ekle
             yeniListe.push(personelObj);
             eklenen++;
           }
@@ -1145,9 +1281,9 @@
       closeModal('modal-excel-secim');
 
       if (mod === 'sifirla') {
-        alert(`Eski liste temizlendi ve güncel İK listesindeki toplam ${eklenen} personel başarıyla yüklendi!`);
+        alert(`Liste sıfırlandı. Toplam ${eklenen} personel T.C. numaralarıyla birlikte sisteme aktarıldı!`);
       } else {
-        alert(`İşlem tamamlandı:\n- ${guncellenen} mevcut personel güncellendi.\n- ${eklenen} yeni personel eklendi.`);
+        alert(`İşlem tamamlandı:\n- ${guncellenen} personel güncellendi.\n- ${eklenen} yeni personel eklendi.`);
       }
     }
 
@@ -1168,12 +1304,13 @@
       if(db.kkd.length > 0) {
         const kkdRapor = db.kkd.map(x => ({
           "Personel": x.personel,
-          "Kategori": x.kategori === 'kis' ? 'Kışlık' : (x.kategori === 'yaz' ? 'Yazlık' : 'Standart KKD'),
+          "Kategori": x.kategori === 'kis' ? 'Kışlık' : (x.kategori === 'yaz' ? 'Yazlık' : 'Özel KKD'),
           "Donanım / Kıyafet": x.tur,
           "Beden": x.beden || '',
           "Adet": x.adet || 1,
           "Teslim Tarihi": trTarih(x.verilis),
-          "Yenileme Tarihi": trTarih(x.degisim)
+          "Yenileme Tarihi": trTarih(x.degisim),
+          "Açıklama / Not": x.aciklama || ''
         }));
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kkdRapor), "KKD_Kiyafet");
       }
