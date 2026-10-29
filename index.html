@@ -49,10 +49,10 @@
     .btn-outline { background: white; color: #334155; border: 1px solid var(--border); }
     .btn-outline:hover { background: #f8fafc; }
     .btn-action-edit { background: #0284c7; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
-    .btn-action-edit:hover { background: #0369a1; }
     .btn-action-del { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; cursor: pointer; border: none; }
     .btn-action-folder { background: #059669; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
-    .btn-action-folder:hover { background: #047857; }
+    .btn-action-print { background: #7c3aed; color: white; padding: 6px 10px; font-size: 0.80rem; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-action-print:hover { background: #6d28d9; }
     .table-container { background: white; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.86rem; }
     th { background: #f8fafc; padding: 12px 14px; color: #334155; font-weight: 700; border-bottom: 1px solid var(--border); }
@@ -63,7 +63,6 @@
     .badge-danger { background: #fee2e2; color: var(--danger); }
     .badge-season-kis { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
     .badge-season-yaz { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
-    .badge-season-kkd { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.2s; }
     .modal.active { opacity: 1; visibility: visible; }
     .modal-content { background: white; width: 620px; border-radius: 8px; padding: 24px; max-height: 92vh; overflow-y: auto; }
@@ -74,18 +73,21 @@
     .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .hidden { display: none !important; }
 
-    .filter-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .filter-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.80rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: white; color: #475569; }
-    .filter-btn.active { background: var(--brand-blue); color: white; border-color: var(--brand-blue); }
+    .season-selector { display: flex; gap: 12px; margin-bottom: 12px; }
+    .season-radio-box { flex: 1; border: 2px solid var(--border); padding: 10px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: 700; font-size: 0.88rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .season-radio-box.selected-kis { border-color: #4338ca; background: #e0e7ff; color: #312e81; }
+    .season-radio-box.selected-yaz { border-color: #c2410c; background: #ffedd5; color: #7c2d12; }
+    .season-radio-box.selected-yok { border-color: #64748b; background: #f1f5f9; color: #334155; }
 
-    /* Kıyafet Satırı Tasarımı */
-    .kiyafet-satir { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; background: white; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; }
-    .kiyafet-satir input, .kiyafet-satir select { padding: 6px 8px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px; }
-    .btn-sil-satir { background: #fee2e2; color: #b91c1c; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+    .kiyafet-row { display: flex; align-items: center; justify-content: space-between; background: white; border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; font-size: 0.85rem; }
+    .kiyafet-row label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: #334155; margin-bottom: 0; }
+    .kiyafet-row select { width: 120px; padding: 4px 8px; font-size: 0.82rem; border: 1px solid #cbd5e1; border-radius: 4px; }
 
-    .class-card { border: 2px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; cursor: pointer; transition: all 0.2s; background: white; display: flex; justify-content: space-between; align-items: center; }
-    .class-card:hover { border-color: var(--brand-blue); background: #f8fafc; }
-    .class-card.selected { border-color: var(--brand-blue); background: #eff6ff; }
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -143,7 +145,6 @@
             <button class="btn btn-outline" onclick="ornekSablonIndir()"><i class="fa-solid fa-download"></i> Şablon Excel İndir</button>
             <input type="file" id="excelYukleInput" accept=".xlsx, .xls" style="display:none;" onchange="excelDosyasiOku(event)">
             <button class="btn btn-excel" onclick="document.getElementById('excelYukleInput').click()"><i class="fa-solid fa-file-import"></i> Excel'den Yükle</button>
-            
             <button class="btn btn-primary" onclick="openPersonelModal()"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
           </div>
         </div>
@@ -157,7 +158,7 @@
                 <th>İSG Eğitimi Bitiş</th>
                 <th>Periyodik Muayene Bitiş</th>
                 <th>Ortak Ağ Evrakı</th>
-                <th style="min-width:140px; text-align:center;">İşlemler</th>
+                <th style="min-width:200px; text-align:center;">İşlemler & Tutanak</th>
               </tr>
             </thead>
             <tbody id="personelTablo"></tbody>
@@ -169,7 +170,7 @@
       <section id="sec-siniflar" class="hidden">
         <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:700px;">
           <h3 style="margin-bottom:6px; font-size:1.15rem; color:#0f172a;"><i class="fa-solid fa-sliders" style="color:var(--brand-blue);"></i> Fabrika İSG Tehlike Sınıfı Seçimi</h3>
-          <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">Buradan fabrikanız için geçerli olan sınıfı seçin. Yeni personel kaydında eğitim ve sağlık süreleri otomatik olarak buna göre hesaplanır.</p>
+          <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">Buradan fabrikanız için geçerli olan sınıfı seçin. Süreler otomatik hesaplanır.</p>
 
           <div class="class-card selected" id="card_tehlikeli" onclick="sinifSec('tehlikeli')">
             <div>
@@ -195,24 +196,6 @@
             <i class="fa-regular fa-circle" id="check_az_tehlikeli" style="color:#cbd5e1; font-size:1.3rem;"></i>
           </div>
 
-          <div class="class-card" id="card_ozel" onclick="sinifSec('ozel')">
-            <div style="width:100%;">
-              <div style="font-weight:700; color:#0284c7; font-size:1rem;"><i class="fa-solid fa-pen-ruler"></i> ÖZEL / FABRİKAYA ÖZEL PERİYOT</div>
-              <div style="font-size:0.84rem; color:#475569; margin-top:4px;">Süreleri kendiniz belirleyin:</div>
-              <div style="display:flex; gap:12px; margin-top:8px;">
-                <div style="flex:1;">
-                  <label style="font-size:0.75rem; font-weight:600;">Eğitim Kaç Yılda Bir?</label>
-                  <input type="number" id="ozel_egitim_yil" value="2" min="1" max="10" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px; width:100%;">
-                </div>
-                <div style="flex:1;">
-                  <label style="font-size:0.75rem; font-weight:600;">Muayene Kaç Yılda Bir?</label>
-                  <input type="number" id="ozel_saglik_yil" value="3" min="1" max="10" style="padding:6px; border:1px solid #cbd5e1; border-radius:4px; width:100%;">
-                </div>
-              </div>
-            </div>
-            <i class="fa-regular fa-circle" id="check_ozel" style="color:#cbd5e1; font-size:1.3rem; margin-left:12px;"></i>
-          </div>
-
           <button class="btn btn-primary" style="margin-top:14px; width:100%; justify-content:center;" onclick="sinifAyariKaydet()">
             <i class="fa-solid fa-floppy-disk"></i> Seçilen Sınıfı Aktif Yap ve Kaydet
           </button>
@@ -226,7 +209,7 @@
         </div>
         <div class="table-container">
           <table>
-            <thead><tr><th>Personel</th><th>Belge Türü</th><th>Kurum / No</th><th>Vize Tarihi (GG.AA.YYYY)</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <thead><tr><th>Personel</th><th>Belge Türü</th><th>Kurum / No</th><th>Vize Tarihi</th><th>Durum</th><th>İşlem</th></tr></thead>
             <tbody id="sertifikaTablo"></tbody>
           </table>
         </div>
@@ -235,29 +218,19 @@
       <!-- 4. KKD & MEVSİMSEL KIYAFET MODÜLÜ -->
       <section id="sec-kkd" class="hidden">
         <div class="table-actions">
-          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="kkd_ara" placeholder="Personel, Donanım veya Kıyafet Ara..." oninput="kkdCiz()"></div>
-          <button class="btn btn-primary" onclick="openKkdModal()"><i class="fa-solid fa-plus"></i> KKD / Kıyafet Zimmetle</button>
+          <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="kkd_ara" placeholder="Personel veya Kıyafet Ara..." oninput="kkdCiz()"></div>
         </div>
-
-        <div class="filter-tabs">
-          <button class="filter-btn active" id="flt_kkd_all" onclick="setKkdFilter('all')"><i class="fa-solid fa-list"></i> Tümü</button>
-          <button class="filter-btn" id="flt_kkd_kis" onclick="setKkdFilter('kis')"><i class="fa-solid fa-snowflake" style="color:#4338ca;"></i> Kışlık Kıyafetler</button>
-          <button class="filter-btn" id="flt_kkd_yaz" onclick="setKkdFilter('yaz')"><i class="fa-solid fa-sun" style="color:#c2410c;"></i> Yazlık Kıyafetler</button>
-          <button class="filter-btn" id="flt_kkd_std" onclick="setKkdFilter('std')"><i class="fa-solid fa-shield-halved"></i> Standart KKD</button>
-        </div>
-
         <div class="table-container">
           <table>
             <thead>
               <tr>
                 <th>Personel Adı</th>
-                <th>Kategori / Mevsim</th>
-                <th>Donanım / Kıyafet</th>
+                <th>Mevsim</th>
+                <th>Kıyafet / KKD</th>
                 <th>Beden & Adet</th>
                 <th>Veriliş Tarihi</th>
                 <th>Yenileme Tarihi</th>
                 <th>Durum</th>
-                <th>Zimmet Tutanağı</th>
                 <th style="text-align:center;">İşlem</th>
               </tr>
             </thead>
@@ -268,69 +241,37 @@
 
       <!-- 5. DÖF -->
       <section id="sec-dof" class="hidden">
-        <div class="table-actions">
-          <button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead><tr><th>Tarih (GG.AA.YYYY)</th><th>Bölüm</th><th>Uygunsuzluk</th><th>Aksiyon</th><th>Sorumlu</th><th>Statü</th><th>İşlem</th></tr></thead>
-            <tbody id="dofTablo"></tbody>
-          </table>
-        </div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button></div>
+        <div class="table-container"><table><thead><tr><th>Tarih</th><th>Bölüm</th><th>Uygunsuzluk</th><th>Aksiyon</th><th>Sorumlu</th><th>Statü</th><th>İşlem</th></tr></thead><tbody id="dofTablo"></tbody></table></div>
       </section>
 
       <!-- 6. İŞ İZNİ -->
       <section id="sec-izin" class="hidden">
-        <div class="table-actions">
-          <button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead><tr><th>İzin No</th><th>Tür</th><th>Alan</th><th>Personel</th><th>Statü</th><th>İşlem</th></tr></thead>
-            <tbody id="izinTablo"></tbody>
-          </table>
-        </div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button></div>
+        <div class="table-container"><table><thead><tr><th>İzin No</th><th>Tür</th><th>Alan</th><th>Personel</th><th>Statü</th><th>İşlem</th></tr></thead><tbody id="izinTablo"></tbody></table></div>
       </section>
 
       <!-- 7. KAZALAR -->
       <section id="sec-kazalar" class="hidden">
-        <div class="table-actions">
-          <button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button>
-        </div>
-        <div class="table-container">
-          <table>
-            <thead><tr><th>Tarih (GG.AA.YYYY)</th><th>Kazazede</th><th>Tür</th><th>Kayıp Gün</th><th>İşlem</th></tr></thead>
-            <tbody id="kazaTablo"></tbody>
-          </table>
-        </div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button></div>
+        <div class="table-container"><table><thead><tr><th>Tarih</th><th>Kazazede</th><th>Tür</th><th>Kayıp Gün</th><th>İşlem</th></tr></thead><tbody id="kazaTablo"></tbody></table></div>
       </section>
 
       <!-- 8. YASAL İSTATİSTİK -->
       <section id="sec-istatistik" class="hidden">
         <div style="background:white; border-radius:8px; border:1px solid var(--border); padding:24px; max-width:650px;">
           <h3 style="margin-bottom:12px; font-size:1.1rem; color:#0f172a;"><i class="fa-solid fa-calculator" style="color:var(--brand-blue);"></i> SGK / Bakanlık Resmi Kaza Oranları</h3>
-          <div class="form-group">
-            <label>Dönemdeki Fiili Çalışma Saati (Adam x Saat)</label>
-            <input type="number" id="stat_fiili_saat" value="100000" oninput="hesaplaIstatistik()">
-          </div>
+          <div class="form-group"><label>Fiili Çalışma Saati</label><input type="number" id="stat_fiili_saat" value="100000" oninput="hesaplaIstatistik()"></div>
           <div style="background:#f8fafc; padding:18px; border-radius:8px; margin-top:15px; border:1px solid #e2e8f0;">
-            <div style="margin-bottom:14px;">
-              <strong>Kaza Sıklık Oranı (KSO): </strong>
-              <span id="res_kso" style="font-size:1.2rem; font-weight:800; color:var(--brand-blue);">0.00</span>
-              <div style="font-size:0.75rem; color:#64748b;">(SGK Formülü: Toplam Kaza Sayısı × 1.000.000 / Fiili Çalışma Saati)</div>
-            </div>
-            <div>
-              <strong>Kaza Ağırlık Oranı (KAO): </strong>
-              <span id="res_kao" style="font-size:1.2rem; font-weight:800; color:var(--danger);">0.00</span>
-              <div style="font-size:0.75rem; color:#64748b;">(SGK Formülü: Toplam Kayıp Gün × 1.000 / Fiili Çalışma Saati)</div>
-            </div>
+            <div><strong>Kaza Sıklık Oranı (KSO): </strong><span id="res_kso" style="font-size:1.2rem; font-weight:800; color:var(--brand-blue);">0.00</span></div>
+            <div style="margin-top:10px;"><strong>Kaza Ağırlık Oranı (KAO): </strong><span id="res_kao" style="font-size:1.2rem; font-weight:800; color:var(--danger);">0.00</span></div>
           </div>
         </div>
       </section>
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL (TEK FORMDA ÇOKLU KIYAFET/KKD ENTEGRELİ) -->
+  <!-- MODAL: PERSONEL KAYIT & MEVSİMSEL KIYAFET SEÇİMİ -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -350,199 +291,170 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Görevi / Pozisyonu</label>
-        <input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü, Formen, Montaj Ustası">
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Görevi / Pozisyonu</label>
+          <input type="text" id="p_gorev" placeholder="Örn: Kaynakçı, Vinç Operatörü">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>İşe Başlama Tarihi</label>
+          <input type="date" id="p_ise_baslama">
+        </div>
       </div>
       
-      <div class="form-group">
-        <label>İşe Başlama Tarihi</label>
-        <input type="date" id="p_ise_baslama">
-      </div>
-      
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
-        <div class="form-group">
-          <label>Son Yapılan İSG Eğitimi Tarihi</label>
+      <div style="display:flex; gap:12px; background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:6px; margin-bottom:12px;">
+        <div class="form-group" style="flex:1; margin-bottom:0;">
+          <label>Son İSG Eğitimi</label>
           <input type="date" id="p_egitim_yapilis" onchange="otomatikTarihHesapla()">
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label>İSG Eğitimi Bitiş (Yenileme) Tarihi</label>
-          <input type="date" id="p_egitim">
-        </div>
-      </div>
-
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:6px; margin-bottom:12px;">
-        <div class="form-group">
-          <label>Son Sağlık Muayenesi Tarihi</label>
+        <div class="form-group" style="flex:1; margin-bottom:0;">
+          <label>Son Sağlık Muayenesi</label>
           <input type="date" id="p_saglik_yapilis" onchange="otomatikTarihHesapla()">
         </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label>Sağlık Raporu Bitiş (Yenileme) Tarihi</label>
-          <input type="date" id="p_saglik">
-        </div>
+      </div>
+      <input type="hidden" id="p_egitim">
+      <input type="hidden" id="p_saglik">
+
+      <div class="form-group">
+        <label style="color:#166534;"><i class="fa-solid fa-folder-open"></i> Ortak Ağ Evrak / Klasör Yolu</label>
+        <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
       </div>
 
-      <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label style="color:#166534; font-weight:700;"><i class="fa-solid fa-folder-open"></i> Ortak Ağ Evrak / Klasör Yolu</label>
-          <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
-        </div>
-      </div>
-
-      <!-- TEK SEFERDE ÇOKLU KIYAFET/KKD VERME ALANI -->
-      <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:14px; border-radius:8px; margin-bottom:14px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div style="font-weight:700; color:#1e40af; font-size:0.86rem;">
-            <i class="fa-solid fa-shirt"></i> Personele Verilen Kıyafet & KKD Zimmetleri
+      <!-- KIYAFET DAĞITIM SEÇENEĞİ -->
+      <div style="border: 2px solid #cbd5e1; padding: 14px; border-radius: 8px; margin-top: 14px; background: #fafafa;">
+        <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: block;">
+          <i class="fa-solid fa-shirt"></i> Personele Kıyafet & Donanım Dağıtılacak mı?
+        </label>
+        
+        <div class="season-selector">
+          <div class="season-radio-box selected-kis" id="btn_secim_kis" onclick="mevsimSecimiYap('kis')">
+            <i class="fa-solid fa-snowflake"></i> Kışlık Dağıtım
           </div>
-          <button type="button" class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="yeniKiyafetSatiriEkle()">
-            <i class="fa-solid fa-plus"></i> + Kıyafet / KKD Ekle
-          </button>
+          <div class="season-radio-box" id="btn_secim_yaz" onclick="mevsimSecimiYap('yaz')">
+            <i class="fa-solid fa-sun"></i> Yazlık Dağıtım
+          </div>
+          <div class="season-radio-box" id="btn_secim_yok" onclick="mevsimSecimiYap('yok')">
+            <i class="fa-solid fa-ban"></i> Kıyafet Yok
+          </div>
         </div>
-        <div id="p_kiyafet_listesi_container">
-          <!-- Dinamik kıyafet satırları buraya basılır -->
+
+        <!-- KIŞLIK LİSTESİ -->
+        <div id="kutu_kislik">
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_mont" checked> 🧥 Kışlık Su Geçirmez İş Montu</label>
+            <select id="beden_kis_mont"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_polar" checked> 🧣 Kışlık Fermuarlı Polar</label>
+            <select id="beden_kis_polar"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_pantolon" checked> 👖 Kışlık Kalın İş Pantolonu</label>
+            <select id="beden_kis_pantolon"><option>44</option><option>46</option><option selected>48</option><option>50</option><option>52</option><option>54</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_bot" checked> 🥾 S3 Kışlık Çelik Burunlu Bot</label>
+            <select id="beden_kis_bot"><option>40</option><option>41</option><option selected>42</option><option>43</option><option>44</option><option>45</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_iclik"> 🧦 Termal İçlik Takımı</label>
+            <select id="beden_kis_iclik"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
+          </div>
+        </div>
+
+        <!-- YAZLIK LİSTESİ -->
+        <div id="kutu_yazlik" class="hidden">
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_yaz_tisort" checked> 👕 Yazlık Polo Yaka Tişört (2 Adet)</label>
+            <select id="beden_yaz_tisort"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_yaz_pantolon" checked> 👖 Yazlık İnce İş Pantolonu</label>
+            <select id="beden_yaz_pantolon"><option>44</option><option>46</option><option selected>48</option><option>50</option><option>52</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_yaz_yelek" checked> 🦺 Çok Cepli Yazlık İş Yeleği</label>
+            <select id="beden_yaz_yelek"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_yaz_ayakkabi" checked> 👟 S3 Nefes Alan Yazlık İş Ayakkabısı</label>
+            <select id="beden_yaz_ayakkabi"><option>40</option><option>41</option><option selected>42</option><option>43</option><option>44</option><option>45</option></select>
+          </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Personel & Zimmetleri Kaydet</button>
+        <button class="btn btn-primary" id="btnPersonelKaydet" onclick="personelKaydet()">Kaydet</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TEKİL KKD / KIYAFET DÜZENLEME -->
-  <div class="modal" id="modal-kkd">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalKkdBaslik">KKD / Kıyafet Zimmet Kaydı</h3>
-        <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kkd')"></i>
+  <!-- YAZDIRMA ALANI (RESMİ ZİMMET & TESLİM TUTANAĞI) -->
+  <div id="print-area" style="display:none; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: white;">
+    <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h2 style="font-size: 1.35rem; font-weight: 900; margin: 0;">ECE TRAFO SAN. VE TİC. A.Ş.</h2>
+        <div style="font-size: 0.9rem; font-weight: 700; color: #444; margin-top: 4px;">KİŞİSEL KORUYUCU DONANIM (KKD) VE İŞ KIYAFETİ TESLİM - ZİMMET TUTANAĞI</div>
       </div>
-      <input type="hidden" id="kkd_edit_index">
-
-      <div class="form-group">
-        <label>Personel Seçin / Yazın</label>
-        <input type="text" id="kkd_p" list="personelListesiDatalist" placeholder="Personel Adı Soyadı">
-        <datalist id="personelListesiDatalist"></datalist>
-      </div>
-
-      <div style="display:flex; gap:12px;">
-        <div class="form-group" style="flex:1;">
-          <label>Kategori / Tür</label>
-          <select id="kkd_kategori" onchange="kkdKategoriDegisti()">
-            <option value="kis">❄️ Kışlık Kıyafet</option>
-            <option value="yaz">☀️ Yazlık Kıyafet</option>
-            <option value="std">🛡️ Standart Donanım (KKD)</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex:1;">
-          <label>Donanım / Kıyafet Seçimi</label>
-          <input type="text" id="kkd_tur" list="kiyafetOnerileri" placeholder="Örn: Kışlık İş Montu">
-          <datalist id="kiyafetOnerileri">
-            <option value="Kışlık Su Geçirmez İş Montu">
-            <option value="Kışlık Polar Hırka">
-            <option value="Kışlık Kalın İş Pantolonu">
-            <option value="Termal İçlik Takımı">
-            <option value="Yazlık İş Tişörtü (Polo Yaka)">
-            <option value="Yazlık İnce İş Pantolonu">
-            <option value="İş Yeleği (Çok Cepli)">
-            <option value="S3 Çelik Burunlu İş Ayakkabısı">
-            <option value="S3 Kışlık İş Botu">
-            <option value="Baret ve Çene Bandı">
-            <option value="Kaynakçı Maskesi ve Önlüğü">
-          </datalist>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:12px;">
-        <div class="form-group" style="flex:1;">
-          <label>Beden / Numara</label>
-          <input type="text" id="kkd_beden" placeholder="Örn: L, XL, XXL veya 42, 43">
-        </div>
-        <div class="form-group" style="flex:1;">
-          <label>Adet</label>
-          <input type="number" id="kkd_adet" value="1" min="1" max="10">
-        </div>
-      </div>
-
-      <div style="display:flex; gap:12px;">
-        <div class="form-group" style="flex:1;">
-          <label>Veriliş Tarihi</label>
-          <input type="date" id="kkd_verilis" onchange="kkdYenilemeHesapla()">
-        </div>
-        <div class="form-group" style="flex:1;">
-          <label>Yenileme Periyodu</label>
-          <select id="kkd_omur" onchange="kkdYenilemeHesapla()">
-            <option value="6">6 Ay (Mevsimlik)</option>
-            <option value="12" selected>12 Ay (1 Yıl)</option>
-            <option value="24">24 Ay (2 Yıl)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Sonraki Yenileme Tarihi</label>
-        <input type="date" id="kkd_degisim">
-      </div>
-
-      <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:6px; margin-bottom:12px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label style="color:#166534; font-weight:700;"><i class="fa-solid fa-folder-open"></i> Zimmet Tutanağı Ortak Ağ Yolu (Opsiyonel)</label>
-          <input type="text" id="kkd_evrak_yolu" placeholder="Örn: \\SUNUCU\Zimmetler\Adem_Bilal_Kislik.pdf">
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-primary" id="btnKkdKaydet" onclick="kkdKaydet()">Zimmeti Kaydet</button>
+      <div style="text-align: right; font-size: 0.85rem;">
+        <div><strong>Form No:</strong> İSG-FRM-08</div>
+        <div id="print_tarih">Tarih: </div>
       </div>
     </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem;">
+      <tr>
+        <td style="border: 1px solid #000; padding: 8px; width: 25%; font-weight: bold; background: #f2f2f2;">Personel Adı Soyadı</td>
+        <td style="border: 1px solid #000; padding: 8px; width: 25%;" id="print_ad"></td>
+        <td style="border: 1px solid #000; padding: 8px; width: 25%; font-weight: bold; background: #f2f2f2;">T.C. Kimlik No</td>
+        <td style="border: 1px solid #000; padding: 8px; width: 25%;" id="print_tc"></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #000; padding: 8px; font-weight: bold; background: #f2f2f2;">Görevi / Pozisyonu</td>
+        <td style="border: 1px solid #000; padding: 8px;" id="print_gorev"></td>
+        <td style="border: 1px solid #000; padding: 8px; font-weight: bold; background: #f2f2f2;">Mevsim / Dağıtım Dönemi</td>
+        <td style="border: 1px solid #000; padding: 8px;" id="print_sezon"></td>
+      </tr>
+    </table>
+
+    <div style="font-weight: bold; font-size: 0.95rem; margin-bottom: 8px;">TESLİM EDİLEN MALZEME VE DONANIM LİSTESİ:</div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.88rem;">
+      <thead>
+        <tr style="background: #f2f2f2;">
+          <th style="border: 1px solid #000; padding: 8px; width: 8%; text-align: center;">S.No</th>
+          <th style="border: 1px solid #000; padding: 8px;">Malzeme / Kıyafet Adı</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 20%;">Beden / Numara</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 12%; text-align: center;">Miktar</th>
+          <th style="border: 1px solid #000; padding: 8px; width: 18%; text-align: center;">Durumu</th>
+        </tr>
+      </thead>
+      <tbody id="print_malzeme_listesi"></tbody>
+    </table>
+
+    <div style="font-size: 0.78rem; line-height: 1.4; border: 1px solid #666; padding: 10px; margin-bottom: 30px; text-align: justify;">
+      <strong>TAAHHÜTNAME:</strong> 6331 sayılı İş Sağlığı ve Güvenliği Kanunu ve Kişisel Koruyucu Donanımların İşyerlerinde Kullanılması Hakkında Yönetmelik gereğince tarafıma teslim edilen yukarıdaki malzemeleri çalışırken eksiksiz ve talimatlara uygun olarak kullanacağımı, koruyacağımı, kasıtlı veya kusurlu olarak zayi olması durumunda yenisini talep edeceğimi ve işten ayrılmam durumunda iade edeceğimi kabul ve taahhüt ederim.
+    </div>
+
+    <table style="width: 100%; margin-top: 40px;">
+      <tr>
+        <td style="width: 50%; text-align: center;">
+          <div style="font-weight: bold;">TESLİM EDEN (İSG / İdari İşler)</div>
+          <div style="margin-top: 50px;">İmza / Kaşe</div>
+        </td>
+        <td style="width: 50%; text-align: center;">
+          <div style="font-weight: bold;">TESLİM ALAN (Çalışan)</div>
+          <div id="print_imza_ad" style="margin-top: 4px; font-size: 0.85rem;"></div>
+          <div style="margin-top: 35px;">İmza</div>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <!-- Diğer Modallar -->
-  <div class="modal" id="modal-sertifika">
-    <div class="modal-content">
-      <div class="modal-header"><h3>Belge Ekle</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-sertifika')"></i></div>
-      <div class="form-group"><label>Personel</label><input type="text" id="s_ad"></div>
-      <div class="form-group"><label>Belge Türü</label><select id="s_tur"><option>İlk Yardımcı Sertifikası (3 Yıl Vize)</option><option>MYK Çelik Kaynakçısı</option><option>Tavan Vinci Operatörü</option><option>Forklift Operatörü</option><option>Kazan Operatörü</option></select></div>
-      <div class="form-group"><label>Kurum / No</label><input type="text" id="s_kurum"></div>
-      <div class="form-group"><label>Vize Bitiş</label><input type="date" id="s_bitis"></div>
-      <div class="modal-footer"><button class="btn btn-primary" onclick="sertifikaEkle()">Kaydet</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-dof">
-    <div class="modal-content">
-      <div class="modal-header"><h3>Saha DÖF Girişi</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-dof')"></i></div>
-      <div class="form-group"><label>Tarih</label><input type="date" id="dof_tarih"></div>
-      <div class="form-group"><label>Bölüm</label><input type="text" id="dof_bolum"></div>
-      <div class="form-group"><label>Tespit</label><textarea id="dof_tespit" rows="2"></textarea></div>
-      <div class="form-group"><label>Aksiyon</label><textarea id="dof_aksiyon" rows="2"></textarea></div>
-      <div class="form-group"><label>Sorumlu</label><input type="text" id="dof_sorumlu"></div>
-      <div class="form-group"><label>Statü</label><select id="dof_statu"><option>Açık</option><option>Kapatıldı</option></select></div>
-      <div class="modal-footer"><button class="btn btn-primary" onclick="dofEkle()">Kaydet</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-izin">
-    <div class="modal-content">
-      <div class="modal-header"><h3>İş İzni Aç</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-izin')"></i></div>
-      <div class="form-group"><label>İzin No</label><input type="text" id="ptw_no" placeholder="Örn: PTW-01"></div>
-      <div class="form-group"><label>Tür</label><select id="ptw_tur"><option>Kazan İçi Kapalı Alan Girişi</option><option>Sıcak Çalışma (Kaynak/Alev)</option><option>Yüksekte Çalışma</option></select></div>
-      <div class="form-group"><label>Alan</label><input type="text" id="ptw_alan"></div>
-      <div class="form-group"><label>Personel</label><input type="text" id="ptw_personel"></div>
-      <div class="modal-footer"><button class="btn btn-primary" onclick="izinEkle()">Kaydet</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-kaza">
-    <div class="modal-content">
-      <div class="modal-header"><h3>Kaza Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kaza')"></i></div>
-      <div class="form-group"><label>Tarih</label><input type="date" id="k_tarih"></div>
-      <div class="form-group"><label>Kazazede</label><input type="text" id="k_ad"></div>
-      <div class="form-group"><label>Tür</label><select id="k_tur"><option>Hafif Yaralanma</option><option>İş Göremezlik Raporlu Kaza</option><option>Ramak Kala</option></select></div>
-      <div class="form-group"><label>Kayıp Gün</label><input type="number" id="k_gun" value="0"></div>
-      <div class="modal-footer"><button class="btn btn-primary" onclick="kazaEkle()">Kaydet</button></div>
-    </div>
-  </div>
+  <div class="modal" id="modal-sertifika"><div class="modal-content"><div class="modal-header"><h3>Belge Ekle</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-sertifika')"></i></div><div class="form-group"><label>Personel</label><input type="text" id="s_ad"></div><div class="form-group"><label>Belge Türü</label><input type="text" id="s_tur"></div><div class="form-group"><label>Kurum / No</label><input type="text" id="s_kurum"></div><div class="form-group"><label>Vize Bitiş</label><input type="date" id="s_bitis"></div><div class="modal-footer"><button class="btn btn-primary" onclick="sertifikaEkle()">Kaydet</button></div></div></div>
+  <div class="modal" id="modal-dof"><div class="modal-content"><div class="modal-header"><h3>DÖF Aç</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-dof')"></i></div><div class="form-group"><label>Tarih</label><input type="date" id="dof_tarih"></div><div class="form-group"><label>Bölüm</label><input type="text" id="dof_bolum"></div><div class="form-group"><label>Tespit</label><textarea id="dof_tespit"></textarea></div><div class="form-group"><label>Aksiyon</label><textarea id="dof_aksiyon"></textarea></div><div class="form-group"><label>Sorumlu</label><input type="text" id="dof_sorumlu"></div><div class="form-group"><label>Statü</label><select id="dof_statu"><option>Açık</option><option>Kapatıldı</option></select></div><div class="modal-footer"><button class="btn btn-primary" onclick="dofEkle()">Kaydet</button></div></div></div>
+  <div class="modal" id="modal-izin"><div class="modal-content"><div class="modal-header"><h3>İş İzni Aç</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-izin')"></i></div><div class="form-group"><label>İzin No</label><input type="text" id="ptw_no"></div><div class="form-group"><label>Tür</label><input type="text" id="ptw_tur"></div><div class="form-group"><label>Alan</label><input type="text" id="ptw_alan"></div><div class="form-group"><label>Personel</label><input type="text" id="ptw_personel"></div><div class="modal-footer"><button class="btn btn-primary" onclick="izinEkle()">Kaydet</button></div></div></div>
+  <div class="modal" id="modal-kaza"><div class="modal-content"><div class="modal-header"><h3>Kaza Kaydı</h3><i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="closeModal('modal-kaza')"></i></div><div class="form-group"><label>Tarih</label><input type="date" id="k_tarih"></div><div class="form-group"><label>Kazazede</label><input type="text" id="k_ad"></div><div class="form-group"><label>Tür</label><input type="text" id="k_tur"></div><div class="form-group"><label>Kayıp Gün</label><input type="number" id="k_gun" value="0"></div><div class="modal-footer"><button class="btn btn-primary" onclick="kazaEkle()">Kaydet</button></div></div></div>
 
   <script>
     const BIN_ID = '6aba83d3ffd5d1605337f957';
@@ -557,21 +469,16 @@
       k: JSON.parse(localStorage.getItem('isg_k')) || [],
       kkd: JSON.parse(localStorage.getItem('isg_kkd')) || [],
       ayar: JSON.parse(localStorage.getItem('isg_ayar')) || {
-        sinif: 'tehlikeli',
-        egitimYil: 2,
-        saglikYil: 3,
-        baslik: 'TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)'
+        sinif: 'tehlikeli', egitimYil: 2, saglikYil: 3, baslik: 'TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)'
       }
     };
 
-    let aktifKkdFiltre = 'all';
+    let secilenMevsim = 'kis';
 
     function trTarih(dateStr) {
       if(!dateStr) return '-';
       const parts = String(dateStr).split('-');
-      if(parts.length === 3) {
-        return `${parts[2]}.${parts[1]}.${parts[0]}`;
-      }
+      if(parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
       return dateStr;
     }
 
@@ -592,9 +499,7 @@
     async function buluttanYukle() {
       updateCloudStatus('loading', 'Buluttan Alınıyor...');
       try {
-        const res = await fetch(BIN_URL + '/latest', {
-          headers: { 'X-Master-Key': MASTER_KEY }
-        });
+        const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': MASTER_KEY } });
         if (res.ok) {
           const data = await res.json();
           if (data.record && typeof data.record === 'object') {
@@ -605,44 +510,28 @@
             db.k = data.record.k || db.k;
             db.kkd = data.record.kkd || db.kkd;
             if (data.record.ayar) db.ayar = data.record.ayar;
-            
             for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
             updateCloudStatus('success', 'Bulut Canlı');
             cizimlerinHepsiniYenile();
           }
-        } else {
-          updateCloudStatus('error', 'Bulut Okunamadı');
-        }
-      } catch (err) {
-        console.error(err);
-        updateCloudStatus('success', 'Yerel Aktif');
-      }
+        } else { updateCloudStatus('error', 'Bulut Okunamadı'); }
+      } catch (err) { updateCloudStatus('success', 'Yerel Aktif'); }
     }
 
     async function sync() {
       for(let key in db) { localStorage.setItem('isg_' + key, JSON.stringify(db[key])); }
       updateMetrics();
       hesaplaIstatistik();
-
       updateCloudStatus('loading', 'Buluta Yazılıyor...');
       try {
         const res = await fetch(BIN_URL, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY
-          },
+          headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
           body: JSON.stringify(db)
         });
-        if (res.ok) {
-          updateCloudStatus('success', 'Bulut Senkronize');
-        } else {
-          updateCloudStatus('error', 'Buluta Yazılamadı');
-        }
-      } catch (e) {
-        console.error(e);
-        updateCloudStatus('error', 'İnternet Yok');
-      }
+        if (res.ok) updateCloudStatus('success', 'Bulut Senkronize');
+        else updateCloudStatus('error', 'Buluta Yazılamadı');
+      } catch (e) { updateCloudStatus('error', 'İnternet Yok'); }
     }
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -656,53 +545,35 @@
         if(el) el.classList.add('hidden');
       });
       document.getElementById('sec-' + target).classList.remove('hidden');
-
       const titles = {
         personel: 'Personel Eğitim & Sağlık İzleme',
         siniflar: 'İSG Tehlike Sınıfı ve Periyot Ayarları',
         sertifika: 'İlk Yardımcı, MYK ve Sertifika Yönetimi',
         kkd: 'KKD & Mevsimlik Kıyafet Zimmet Takibi',
-        dof: 'DÖF & Saha Denetimi',
-        izin: 'Özel İş İzinleri (PTW)',
-        kazalar: 'İş Kazaları Defteri',
-        istatistik: 'SGK Kaza Oranları Motoru'
+        dof: 'DÖF & Saha Denetimi', izin: 'Özel İş İzinleri (PTW)', kazalar: 'İş Kazaları Defteri', istatistik: 'SGK Kaza Oranları'
       };
       document.getElementById('pageTitle').innerText = titles[target] || 'İSG Sistemi';
       if (target === 'kkd') kkdCiz();
     }
 
-    let geciciSecim = db.ayar.sinif;
-    function sinifSec(sinifKey) {
-      geciciSecim = sinifKey;
-      ['tehlikeli', 'cok_tehlikeli', 'az_tehlikeli', 'ozel'].forEach(k => {
-        document.getElementById('card_' + k).classList.remove('selected');
-        document.getElementById('check_' + k).className = 'fa-regular fa-circle';
-        document.getElementById('check_' + k).style.color = '#cbd5e1';
-      });
-      document.getElementById('card_' + sinifKey).classList.add('selected');
-      document.getElementById('check_' + sinifKey).className = 'fa-solid fa-circle-check';
-      document.getElementById('check_' + sinifKey).style.color = '#0284c7';
-    }
+    function mevsimSecimiYap(tur) {
+      secilenMevsim = tur;
+      document.getElementById('btn_secim_kis').className = 'season-radio-box';
+      document.getElementById('btn_secim_yaz').className = 'season-radio-box';
+      document.getElementById('btn_secim_yok').className = 'season-radio-box';
 
-    function sinifAyariKaydet() {
-      if(geciciSecim === 'tehlikeli') {
-        db.ayar = { sinif: 'tehlikeli', egitimYil: 2, saglikYil: 3, baslik: 'TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)' };
-      } else if(geciciSecim === 'cok_tehlikeli') {
-        db.ayar = { sinif: 'cok_tehlikeli', egitimYil: 1, saglikYil: 1, baslik: 'ÇOK TEHLİKELİ (Eğitim: 1 Yıl / Muayene: 1 Yıl)' };
-      } else if(geciciSecim === 'az_tehlikeli') {
-        db.ayar = { sinif: 'az_tehlikeli', egitimYil: 3, saglikYil: 5, baslik: 'AZ TEHLİKELİ (Eğitim: 3 Yıl / Muayene: 5 Yıl)' };
-      } else if(geciciSecim === 'ozel') {
-        const ey = parseInt(document.getElementById('ozel_egitim_yil').value) || 1;
-        const sy = parseInt(document.getElementById('ozel_saglik_yil').value) || 1;
-        db.ayar = { sinif: 'ozel', egitimYil: ey, saglikYil: sy, baslik: `ÖZEL AYAR (Eğitim: ${ey} Yıl / Muayene: ${sy} Yıl)` };
+      document.getElementById('kutu_kislik').classList.add('hidden');
+      document.getElementById('kutu_yazlik').classList.add('hidden');
+
+      if (tur === 'kis') {
+        document.getElementById('btn_secim_kis').classList.add('selected-kis');
+        document.getElementById('kutu_kislik').classList.remove('hidden');
+      } else if (tur === 'yaz') {
+        document.getElementById('btn_secim_yaz').classList.add('selected-yaz');
+        document.getElementById('kutu_yazlik').classList.remove('hidden');
+      } else {
+        document.getElementById('btn_secim_yok').classList.add('selected-yok');
       }
-      sync();
-      updateHeaderBadge();
-      alert(`Fabrika aktif sınıfı buluta kaydedildi:\n${db.ayar.baslik}`);
-    }
-
-    function updateHeaderBadge() {
-      document.getElementById('headerBadge').innerHTML = `<i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: ${db.ayar.baslik}`;
     }
 
     function otomatikTarihHesapla() {
@@ -735,7 +606,6 @@
       document.getElementById('stat_toplam_p').innerText = db.p.length;
       document.getElementById('stat_acik_dof').innerText = db.dof.filter(x => x.statu !== 'Kapatıldı').length;
       document.getElementById('stat_kaza').innerText = db.k.length;
-
       let alarm = 0;
       db.p.forEach(x => {
         if(getStatus(x.egitim).diff <= 60 || getStatus(x.saglik).diff <= 60) alarm++;
@@ -746,32 +616,11 @@
     function agYolunuKopyala(yol) {
       if (!yol) return;
       navigator.clipboard.writeText(yol).then(() => {
-        alert("Ortak Ağ Klasör Yolu Kopyalandı:\n\n" + yol + "\n\nŞimdi Dosya Gezginini açıp adres çubuğuna yapıştırabilirsiniz (Ctrl + V).");
-      }).catch(() => {
-        prompt("Aşağıdaki klasör yolunu kopyalayın (Ctrl + C):", yol);
-      });
+        alert("Ortak Ağ Klasör Yolu Kopyalandı:\n\n" + yol);
+      }).catch(() => { prompt("Klasör yolu:", yol); });
     }
 
-    // ================= DİNAMİK ÇOKLU KIYAFET SATIRLARI =================
-    function yeniKiyafetSatiriEkle(tur = '', beden = '', adet = '1', kategori = 'kis') {
-      const container = document.getElementById('p_kiyafet_listesi_container');
-      const div = document.createElement('div');
-      div.className = 'kiyafet-satir';
-      div.innerHTML = `
-        <select class="kiyafet-satir-kat" style="width:110px;">
-          <option value="kis" ${kategori==='kis'?'selected':''}>❄️ Kışlık</option>
-          <option value="yaz" ${kategori==='yaz'?'selected':''}>☀️ Yazlık</option>
-          <option value="std" ${kategori==='std'?'selected':''}>🛡️ KKD</option>
-        </select>
-        <input type="text" class="kiyafet-satir-tur" list="kiyafetOnerileri" placeholder="Kıyafet / KKD Adı" value="${tur}" style="flex:2;">
-        <input type="text" class="kiyafet-satir-beden" placeholder="Beden/No" value="${beden}" style="width:85px;">
-        <input type="number" class="kiyafet-satir-adet" value="${adet}" min="1" max="10" style="width:60px;">
-        <button type="button" class="btn-sil-satir" onclick="this.parentElement.remove()" title="Kaldır"><i class="fa-solid fa-trash"></i></button>
-      `;
-      container.appendChild(div);
-    }
-
-    // ================= PERSONEL MODÜLÜ =================
+    // ================= PERSONEL LİSTESİ & İŞLEMLER =================
     function personelCiz() {
       const q = document.getElementById('p_ara').value.toLowerCase();
       const tbody = document.getElementById('personelTablo');
@@ -786,7 +635,7 @@
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
 
-          let evrakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Girilmedi</span>`;
+          let evrakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Yok</span>`;
           if (p.evrak_yolu && p.evrak_yolu.trim() !== '') {
             evrakButonu = `<button class="btn-action-folder" title="${p.evrak_yolu}" onclick="agYolunuKopyala('${p.evrak_yolu.replace(/'/g, "\\'")}')">
               <i class="fa-solid fa-folder-open"></i> Evrak
@@ -796,22 +645,16 @@
           const tcGosterim = p.tc ? `<div style="font-size:0.75rem; color:#64748b; font-weight:600;"><i class="fa-regular fa-id-card"></i> ${p.tc}</div>` : '';
           
           tbody.innerHTML += `<tr>
-            <td>
-              <strong>${p.ad||'-'}</strong>
-              ${tcGosterim}
-            </td>
+            <td><strong>${p.ad||'-'}</strong>${tcGosterim}</td>
             <td><strong>${p.gorev||'-'}</strong></td>
             <td>${trTarih(p.ise_baslama)}</td>
-            <td>
-              <span class="badge ${e.cls}">${e.text}</span>
-              <div style="font-size:11px; font-weight:600; color:#475569; margin-top:2px;">${p.egitim ? trTarih(p.egitim) : ''}</div>
-            </td>
-            <td>
-              <span class="badge ${s.cls}">${s.text}</span>
-              <div style="font-size:11px; font-weight:600; color:#475569; margin-top:2px;">${p.saglik ? trTarih(p.saglik) : ''}</div>
-            </td>
+            <td><span class="badge ${e.cls}">${e.text}</span><div style="font-size:11px; color:#475569;">${p.egitim ? trTarih(p.egitim) : ''}</div></td>
+            <td><span class="badge ${s.cls}">${s.text}</span><div style="font-size:11px; color:#475569;">${p.saglik ? trTarih(p.saglik) : ''}</div></td>
             <td>${evrakButonu}</td>
             <td style="text-align:center; white-space:nowrap;">
+              <button class="btn-action-print" title="Resmi Zimmet Tutanağını Yazdır" onclick="zimmetTutanagiYazdir(${idx})">
+                <i class="fa-solid fa-print"></i> Zimmet Çıktısı
+              </button>
               <button class="btn-action-edit" onclick="personelDuzenleByIndex(${idx})">
                 <i class="fa-solid fa-pen-to-square"></i> Düzenle
               </button>
@@ -822,36 +665,23 @@
           </tr>`;
         }
       });
-
-      const datalist = document.getElementById('personelListesiDatalist');
-      if (datalist) {
-        datalist.innerHTML = '';
-        db.p.forEach(x => {
-          datalist.innerHTML += `<option value="${x.ad}">${x.gorev ? '(' + x.gorev + ')' : ''}</option>`;
-        });
-      }
     }
 
     function openPersonelModal() {
       document.getElementById('modalPersonelBaslik').innerText = "Yeni Personel Kaydı";
-      document.getElementById('btnPersonelKaydet').innerText = "Personel & Zimmetleri Kaydet";
+      document.getElementById('btnPersonelKaydet').innerText = "Kaydet & Zimmetle";
       document.getElementById('p_edit_index').value = "-1";
       document.getElementById('p_ad').value = '';
       document.getElementById('p_tc').value = '';
       document.getElementById('p_gorev').value = '';
-      document.getElementById('p_ise_baslama').value = '';
+      document.getElementById('p_ise_baslama').value = new Date().toISOString().slice(0, 10);
       document.getElementById('p_egitim_yapilis').value = '';
       document.getElementById('p_egitim').value = '';
       document.getElementById('p_saglik_yapilis').value = '';
       document.getElementById('p_saglik').value = '';
       document.getElementById('p_evrak_yolu').value = '';
       
-      // Kıyafet alanını sıfırla ve 2 örnek boş satır aç
-      const container = document.getElementById('p_kiyafet_listesi_container');
-      container.innerHTML = '';
-      yeniKiyafetSatiriEkle('Kışlık Su Geçirmez İş Montu', '', '1', 'kis');
-      yeniKiyafetSatiriEkle('S3 Çelik Burunlu İş Ayakkabısı', '', '1', 'std');
-
+      mevsimSecimiYap('kis'); // Varsayılan Kışlık
       openModal('modal-personel');
     }
 
@@ -872,19 +702,7 @@
       document.getElementById('p_saglik').value = p.saglik || '';
       document.getElementById('p_evrak_yolu').value = p.evrak_yolu || '';
 
-      // Bu personelin mevcut KKD ve kıyafetlerini bulup satırlara diz
-      const container = document.getElementById('p_kiyafet_listesi_container');
-      container.innerHTML = '';
-      const mevcutKkdler = db.kkd.filter(k => k.personel.trim().toLowerCase() === p.ad.trim().toLowerCase());
-      
-      if(mevcutKkdler.length > 0) {
-        mevcutKkdler.forEach(k => {
-          yeniKiyafetSatiriEkle(k.tur, k.beden, k.adet, k.kategori || 'kis');
-        });
-      } else {
-        yeniKiyafetSatiriEkle('', '', '1', 'kis');
-      }
-
+      mevsimSecimiYap(p.sonSezon || 'yok');
       openModal('modal-personel');
     }
 
@@ -902,9 +720,8 @@
       
       if(!ad) return alert("Personel adı boş bırakılamaz.");
 
-      const item = { ad, tc, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu };
+      const item = { ad, tc, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu, sonSezon: secilenMevsim };
 
-      // Eski personel adı değişirse KKD kayıtlarında da güncellemek için
       let eskiAd = '';
       if(editIdx >= 0 && editIdx < db.p.length) {
         eskiAd = db.p[editIdx].ad;
@@ -913,211 +730,131 @@
         db.p.push(item);
       }
 
-      // ---------------- ÇOKLU KIYAFETLERİ İŞLEME VE KKD'YE YAZMA ----------------
-      // Eğer düzenleme yapılıyorsa bu personelin eski KKD'lerini temizleyip formdakileri ekleyelim
-      if(eskiAd) {
-        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== eskiAd.trim().toLowerCase());
-      } else {
-        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== ad.trim().toLowerCase());
-      }
+      // Kıyafetleri Zimmet Listesine Otomatik İşleme
+      const hedefAd = eskiAd || ad;
+      if (secilenMevsim !== 'yok') {
+        db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== hedefAd.trim().toLowerCase());
+        const verilisTarihi = ise_baslama || new Date().toISOString().slice(0, 10);
+        let bitisD = new Date(verilisTarihi);
+        bitisD.setFullYear(bitisD.getFullYear() + 1);
+        const bitisStr = bitisD.toISOString().slice(0, 10);
 
-      const satirElemanlari = document.querySelectorAll('#p_kiyafet_listesi_container .kiyafet-satir');
-      const bugun = new Date().toISOString().slice(0, 10);
-
-      satirElemanlari.forEach(satir => {
-        const kat = satir.querySelector('.kiyafet-satir-kat').value;
-        const tur = satir.querySelector('.kiyafet-satir-tur').value.trim();
-        const beden = satir.querySelector('.kiyafet-satir-beden').value.trim();
-        const adet = satir.querySelector('.kiyafet-satir-adet').value || '1';
-
-        if(tur) {
-          // Bitiş tarihi: Kışlık/Yazlık için varsayılan 12 ay
-          let d = new Date();
-          d.setMonth(d.getMonth() + 12);
-          const degisim = d.toISOString().slice(0, 10);
-
-          db.kkd.push({
-            personel: ad,
-            kategori: kat,
-            tur: tur,
-            beden: beden,
-            adet: adet,
-            verilis: ise_baslama ? ise_baslama : bugun,
-            omur: '12',
-            degisim: degisim,
-            evrak_yolu: ''
-          });
+        if (secilenMevsim === 'kis') {
+          if (document.getElementById('chk_kis_mont').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Su Geçirmez İş Montu', beden: document.getElementById('beden_kis_mont').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_kis_polar').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Polar Hırka', beden: document.getElementById('beden_kis_polar').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_kis_pantolon').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Kalın İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_kis_bot').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'S3 Kışlık Çelik Burunlu Bot', beden: document.getElementById('beden_kis_bot').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_kis_iclik').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Termal İçlik Takımı', beden: document.getElementById('beden_kis_iclik').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+        } else if (secilenMevsim === 'yaz') {
+          if (document.getElementById('chk_yaz_tisort').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Tişörtü (Polo)', beden: document.getElementById('beden_yaz_tisort').value, adet: 2, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_yaz_pantolon').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İnce İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_yaz_yelek').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Çok Cepli Yazlık İş Yeleği', beden: document.getElementById('beden_yaz_yelek').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_yaz_ayakkabi').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'S3 Nefes Alan Yazlık Ayakkabı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: 1, verilis: verilisTarihi, degisim: bitisStr });
+          }
         }
-      });
+      }
 
       sync();
       personelCiz();
       kkdCiz();
       closeModal('modal-personel');
-      alert(`Personel kaydı ve kıyafet zimmetleri tek seferde başarıyla kaydedildi!`);
+      alert(`${ad} personeli ve seçilen kıyafet zimmetleri başarıyla kaydedildi!`);
     }
 
-    // ================= KKD & KIYAFET SEKMESİ İŞLEMLERİ =================
-    function setKkdFilter(filterType) {
-      aktifKkdFiltre = filterType;
-      ['all', 'kis', 'yaz', 'std'].forEach(k => {
-        document.getElementById('flt_kkd_' + k).classList.remove('active');
+    // ================= RESMİ ZİMMET TUTANAĞI YAZDIRMA =================
+    function zimmetTutanagiYazdir(idx) {
+      const p = db.p[idx];
+      if(!p) return;
+
+      const malzemeler = db.kkd.filter(k => k.personel.trim().toLowerCase() === p.ad.trim().toLowerCase());
+      if(malzemeler.length === 0) {
+        return alert("Bu personele ait kayıtlı kıyafet / KKD bulunamadı. Düzenle butonundan kıyafet seçip kaydedin.");
+      }
+
+      document.getElementById('print_tarih').innerText = "Tarih: " + (malzemeler[0].verilis ? trTarih(malzemeler[0].verilis) : trTarih(new Date().toISOString().slice(0, 10)));
+      document.getElementById('print_ad').innerText = p.ad || '-';
+      document.getElementById('print_tc').innerText = p.tc || '-';
+      document.getElementById('print_gorev').innerText = p.gorev || '-';
+      document.getElementById('print_sezon').innerText = (p.sonSezon === 'kis' ? 'KIŞLIK DAĞITIM' : (p.sonSezon === 'yaz' ? 'YAZLIK DAĞITIM' : 'GENEL KKD'));
+      document.getElementById('print_imza_ad').innerText = p.ad;
+
+      const tbody = document.getElementById('print_malzeme_listesi');
+      tbody.innerHTML = '';
+      malzemeler.forEach((m, i) => {
+        tbody.innerHTML += `
+          <tr>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">${i + 1}</td>
+            <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${m.tur}</td>
+            <td style="border: 1px solid #000; padding: 6px;">${m.beden || '-'}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">${m.adet || 1} Adet</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">Kullanılmamış / Sıfır</td>
+          </tr>
+        `;
       });
-      document.getElementById('flt_kkd_' + filterType).classList.add('active');
-      kkdCiz();
+
+      const printArea = document.getElementById('print-area');
+      printArea.style.display = 'block';
+      window.print();
+      printArea.style.display = 'none';
     }
 
-    function kkdKategoriDegisti() {
-      const kat = document.getElementById('kkd_kategori').value;
-      const omurSelect = document.getElementById('kkd_omur');
-      if (kat === 'kis' || kat === 'yaz') {
-        omurSelect.value = "12";
-      }
-      kkdYenilemeHesapla();
-    }
-
-    function kkdYenilemeHesapla() {
-      const verilis = document.getElementById('kkd_verilis').value;
-      const omur = parseInt(document.getElementById('kkd_omur').value);
-      if(verilis && omur) {
-        let d = new Date(verilis);
-        d.setMonth(d.getMonth() + omur);
-        document.getElementById('kkd_degisim').value = d.toISOString().slice(0, 10);
-      }
-    }
-
-    function openKkdModal() {
-      document.getElementById('modalKkdBaslik').innerText = "KKD / Kıyafet Zimmet Kaydı";
-      document.getElementById('btnKkdKaydet').innerText = "Zimmeti Kaydet";
-      document.getElementById('kkd_edit_index').value = "-1";
-      document.getElementById('kkd_p').value = '';
-      document.getElementById('kkd_kategori').value = 'kis';
-      document.getElementById('kkd_tur').value = '';
-      document.getElementById('kkd_beden').value = '';
-      document.getElementById('kkd_adet').value = '1';
-      document.getElementById('kkd_verilis').value = new Date().toISOString().slice(0, 10);
-      document.getElementById('kkd_omur').value = '12';
-      document.getElementById('kkd_evrak_yolu').value = '';
-      kkdYenilemeHesapla();
-      openModal('modal-kkd');
-    }
-
-    function kkdDuzenleByIndex(idx) {
-      const k = db.kkd[idx];
-      if(!k) return;
-
-      document.getElementById('modalKkdBaslik').innerText = "Zimmet Bilgisini Düzenle: " + (k.personel || '');
-      document.getElementById('btnKkdKaydet').innerText = "Değişiklikleri Güncelle";
-      document.getElementById('kkd_edit_index').value = idx;
-      document.getElementById('kkd_p').value = k.personel || '';
-      document.getElementById('kkd_kategori').value = k.kategori || 'kis';
-      document.getElementById('kkd_tur').value = k.tur || '';
-      document.getElementById('kkd_beden').value = k.beden || '';
-      document.getElementById('kkd_adet').value = k.adet || '1';
-      document.getElementById('kkd_verilis').value = k.verilis || '';
-      document.getElementById('kkd_omur').value = k.omur || '12';
-      document.getElementById('kkd_degisim').value = k.degisim || '';
-      document.getElementById('kkd_evrak_yolu').value = k.evrak_yolu || '';
-
-      openModal('modal-kkd');
-    }
-
-    function kkdKaydet() {
-      const editIdx = parseInt(document.getElementById('kkd_edit_index').value);
-      const personel = document.getElementById('kkd_p').value.trim();
-      const kategori = document.getElementById('kkd_kategori').value;
-      const tur = document.getElementById('kkd_tur').value.trim();
-      const beden = document.getElementById('kkd_beden').value.trim();
-      const adet = document.getElementById('kkd_adet').value || '1';
-      const verilis = document.getElementById('kkd_verilis').value;
-      const omur = document.getElementById('kkd_omur').value;
-      const degisim = document.getElementById('kkd_degisim').value;
-      const evrak_yolu = document.getElementById('kkd_evrak_yolu').value.trim();
-
-      if(!personel) return alert("Personel adı zorunludur.");
-      if(!tur) return alert("Donanım veya kıyafet adı belirtin.");
-      if(!verilis) return alert("Veriliş tarihi zorunludur.");
-
-      const item = { personel, kategori, tur, beden, adet, verilis, omur, degisim, evrak_yolu };
-
-      if(editIdx >= 0 && editIdx < db.kkd.length) {
-        db.kkd[editIdx] = item;
-      } else {
-        db.kkd.push(item);
-      }
-
-      sync();
-      kkdCiz();
-      closeModal('modal-kkd');
-    }
-
+    // ================= KKD SEKMESİ LİSTESİ =================
     function kkdCiz() {
       const q = document.getElementById('kkd_ara') ? document.getElementById('kkd_ara').value.toLowerCase() : '';
       const tbody = document.getElementById('kkdTablo');
       tbody.innerHTML = '';
 
       db.kkd.forEach((k, idx) => {
-        if (aktifKkdFiltre !== 'all' && (k.kategori || 'std') !== aktifKkdFiltre) return;
+        if ((k.personel||'').toLowerCase().includes(q) || (k.tur||'').toLowerCase().includes(q)) {
+          const d = getStatus(k.degisim);
+          let katBadge = k.kategori === 'kis' ? `<span class="badge badge-season-kis">Kışlık</span>` : `<span class="badge badge-season-yaz">Yazlık</span>`;
 
-        const pMatch = (k.personel||'').toLowerCase().includes(q);
-        const tMatch = (k.tur||'').toLowerCase().includes(q);
-        if (!pMatch && !tMatch) return;
-
-        const d = getStatus(k.degisim);
-
-        let katBadge = `<span class="badge badge-season-kkd"><i class="fa-solid fa-shield-halved"></i> Donanım</span>`;
-        if (k.kategori === 'kis') {
-          katBadge = `<span class="badge badge-season-kis"><i class="fa-solid fa-snowflake"></i> Kışlık</span>`;
-        } else if (k.kategori === 'yaz') {
-          katBadge = `<span class="badge badge-season-yaz"><i class="fa-solid fa-sun"></i> Yazlık</span>`;
+          tbody.innerHTML += `<tr>
+            <td><strong>${k.personel}</strong></td>
+            <td>${katBadge}</td>
+            <td><strong>${k.tur}</strong></td>
+            <td>${k.beden || '-'} (${k.adet || 1} Adet)</td>
+            <td>${trTarih(k.verilis)}</td>
+            <td><strong>${trTarih(k.degisim)}</strong></td>
+            <td><span class="badge ${d.cls}">${d.text}</span></td>
+            <td style="text-align:center;">
+              <button class="btn-action-del" title="Sil" onclick="silByIndex('kkd', ${idx})"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
         }
-
-        let tutanakButonu = `<span style="color:#94a3b8; font-size:0.75rem;">Yol Yok</span>`;
-        if (k.evrak_yolu && k.evrak_yolu.trim() !== '') {
-          tutanakButonu = `<button class="btn-action-folder" title="${k.evrak_yolu}" onclick="agYolunuKopyala('${k.evrak_yolu.replace(/'/g, "\\'")}')">
-            <i class="fa-solid fa-file-contract"></i> Tutanak
-          </button>`;
-        }
-
-        const bedenGosterim = (k.beden ? `<strong>${k.beden}</strong>` : '-') + ` (${k.adet || 1} Adet)`;
-
-        tbody.innerHTML += `<tr>
-          <td><strong>${k.personel}</strong></td>
-          <td>${katBadge}</td>
-          <td><strong>${k.tur}</strong></td>
-          <td>${bedenGosterim}</td>
-          <td>${trTarih(k.verilis)}</td>
-          <td><strong>${trTarih(k.degisim)}</strong></td>
-          <td><span class="badge ${d.cls}">${d.text}</span></td>
-          <td>${tutanakButonu}</td>
-          <td style="text-align:center; white-space:nowrap;">
-            <button class="btn-action-edit" title="Düzenle" onclick="kkdDuzenleByIndex(${idx})"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="btn-action-del" title="Sil" onclick="silByIndex('kkd', ${idx})"><i class="fa-solid fa-trash"></i></button>
-          </td>
-        </tr>`;
       });
     }
 
-    // ================= DİĞER MODÜLLER =================
+    // ================= DİĞER MODÜLLER & EXCEL =================
     function sertifikaCiz() {
       const tbody = document.getElementById('sertifikaTablo');
       tbody.innerHTML = '';
       db.s.forEach((s, idx) => {
         const d = getStatus(s.bitis);
-        tbody.innerHTML += `<tr>
-          <td>${s.ad}</td>
-          <td>${s.tur}</td>
-          <td>${s.kurum||'-'}</td>
-          <td><strong>${trTarih(s.bitis)}</strong></td>
-          <td><span class="badge ${d.cls}">${d.text}</span></td>
-          <td><button class="btn-action-del" onclick="silByIndex('s', ${idx})"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${s.ad}</td><td>${s.tur}</td><td>${s.kurum||'-'}</td><td><strong>${trTarih(s.bitis)}</strong></td><td><span class="badge ${d.cls}">${d.text}</span></td><td><button class="btn-action-del" onclick="silByIndex('s', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function sertifikaEkle() {
       const ad = document.getElementById('s_ad').value.trim();
       const tur = document.getElementById('s_tur').value;
-      const kurum = document.getElementById('s_kurum').value.trim();
+      const kurum = document.getElementById('s_kurum').value;
       const bitis = document.getElementById('s_bitis').value;
       if(!ad) return alert("Ad girin.");
       db.s.push({ ad, tur, kurum, bitis });
@@ -1128,15 +865,7 @@
       const tbody = document.getElementById('dofTablo');
       tbody.innerHTML = '';
       db.dof.forEach((d, idx) => {
-        tbody.innerHTML += `<tr>
-          <td><strong>${trTarih(d.tarih)}</strong></td>
-          <td>${d.bolum}</td>
-          <td>${d.tespit}</td>
-          <td>${d.aksiyon}</td>
-          <td>${d.sorumlu}</td>
-          <td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td>
-          <td><button class="btn-action-del" onclick="silByIndex('dof', ${idx})"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${trTarih(d.tarih)}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn-action-del" onclick="silByIndex('dof', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function dofEkle() {
@@ -1154,14 +883,7 @@
       const tbody = document.getElementById('izinTablo');
       tbody.innerHTML = '';
       db.izin.forEach((i, idx) => {
-        tbody.innerHTML += `<tr>
-          <td>${i.no}</td>
-          <td>${i.tur}</td>
-          <td>${i.alan}</td>
-          <td>${i.personel}</td>
-          <td><span class="badge badge-success">Aktif</span></td>
-          <td><button class="btn-action-del" onclick="silByIndex('izin', ${idx})"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn-action-del" onclick="silByIndex('izin', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function izinEkle() {
@@ -1177,13 +899,7 @@
       const tbody = document.getElementById('kazaTablo');
       tbody.innerHTML = '';
       db.k.forEach((k, idx) => {
-        tbody.innerHTML += `<tr>
-          <td><strong>${trTarih(k.tarih)}</strong></td>
-          <td>${k.ad}</td>
-          <td>${k.tur}</td>
-          <td>${k.gun}</td>
-          <td><button class="btn-action-del" onclick="silByIndex('k', ${idx})"><i class="fa-solid fa-trash"></i></button></td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${trTarih(k.tarih)}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn-action-del" onclick="silByIndex('k', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function kazaEkle() {
@@ -1200,12 +916,8 @@
       const kazaSayisi = db.k.filter(x => x.tur !== 'Ramak Kala').length;
       let toplamKayip = 0;
       db.k.forEach(x => { if(x.tur !== 'Ramak Kala') toplamKayip += Number(x.gun)||0; });
-
-      const kso = ((kazaSayisi * 1000000) / fiiliSaat).toFixed(2);
-      const kao = ((toplamKayip * 1000) / fiiliSaat).toFixed(2);
-
-      document.getElementById('res_kso').innerText = kso;
-      document.getElementById('res_kao').innerText = kao;
+      document.getElementById('res_kso').innerText = ((kazaSayisi * 1000000) / fiiliSaat).toFixed(2);
+      document.getElementById('res_kao').innerText = ((toplamKayip * 1000) / fiiliSaat).toFixed(2);
     }
 
     function silByIndex(kat, idx) {
@@ -1216,146 +928,64 @@
       }
     }
 
-    // ================= EXCEL İŞLEMLERİ =================
     function ornekSablonIndir() {
-      const sablonVeri = [
-        {
-          "T.C. Kimlik No": "12345678901",
-          "Ad Soyad": "Ahmet Yılmaz",
-          "Görevi": "Kaynakçı",
-          "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15",
-          "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10",
-          "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2025-05-10",
-          "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG_Evraklari\\Ahmet_Yilmaz"
-        }
-      ];
-
+      const sablonVeri = [{ "T.C. Kimlik No": "12345678901", "Ad Soyad": "Ahmet Yılmaz", "Görevi": "Kaynakçı", "İşe Başlama Tarihi (YYYY-AA-GG)": "2024-01-15", "Son İSG Eğitimi Tarihi (YYYY-AA-GG)": "2025-05-10", "Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)": "2025-05-10", "Ortak Ağ Evrak Yolu": "\\\\SUNUCU\\ISG\\Ahmet" }];
       const ws = XLSX.utils.json_to_sheet(sablonVeri);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Personel_Sablon");
-      XLSX.writeFile(wb, "ECE_Trafo_Personel_Yukleme_Sablonu.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Sablon");
+      XLSX.writeFile(wb, "Personel_Sablonu.xlsx");
     }
 
     function parseExcelDate(val) {
       if(!val) return '';
       if(val instanceof Date) return val.toISOString().slice(0, 10);
-      if(typeof val === 'number') {
-        const d = new Date(Math.round((val - 25569) * 86400 * 1000));
-        return d.toISOString().slice(0, 10);
-      }
+      if(typeof val === 'number') return new Date(Math.round((val - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
       val = String(val).trim();
-      if(val.includes('.')) {
-        const p = val.split('.');
-        if(p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-      }
+      if(val.includes('.')) { const p = val.split('.'); if(p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`; }
       return val;
     }
 
     function excelDosyasiOku(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
-
-          if (rows.length === 0) {
-            alert("Seçilen Excel dosyasında kayıt bulunamadı.");
-            return;
-          }
-
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
           let eklenenSayisi = 0;
           rows.forEach(r => {
-            const ad = r["Ad Soyad"] || r["Adı Soyadı"] || r["Personel"] || r["AD SOYAD"];
+            const ad = r["Ad Soyad"] || r["Adı Soyadı"] || r["Personel"];
             if (!ad) return;
+            const tc = String(r["T.C. Kimlik No"] || r["TC"] || '').trim();
+            const gorev = r["Görevi"] || '';
+            const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"]);
+            const egitim_yapilis = parseExcelDate(r["Son İSG Eğitimi Tarihi (YYYY-AA-GG)"]);
+            const saglik_yapilis = parseExcelDate(r["Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)"]);
+            const evrak_yolu = r["Ortak Ağ Evrak Yolu"] || '';
 
-            const tc = String(r["T.C. Kimlik No"] || r["TC Kimlik No"] || r["TC"] || r["TC NO"] || '').trim();
-            const gorev = r["Görevi"] || r["Pozisyon"] || r["Görevi / Pozisyonu"] || '';
-            const ise_baslama = parseExcelDate(r["İşe Başlama Tarihi (YYYY-AA-GG)"] || r["İşe Başlama"] || r["İşe Giriş"]);
-            const egitim_yapilis = parseExcelDate(r["Son İSG Eğitimi Tarihi (YYYY-AA-GG)"] || r["İSG Eğitimi Tarihi"] || r["Eğitim Tarihi"]);
-            const saglik_yapilis = parseExcelDate(r["Son Sağlık Muayenesi Tarihi (YYYY-AA-GG)"] || r["Sağlık Muayenesi Tarihi"] || r["Muayene Tarihi"]);
-            const evrak_yolu = r["Ortak Ağ Evrak Yolu"] || r["Evrak Yolu"] || '';
+            let egitim = '', saglik = '';
+            if (egitim_yapilis) { let d = new Date(egitim_yapilis); d.setFullYear(d.getFullYear() + db.ayar.egitimYil); egitim = d.toISOString().slice(0, 10); }
+            if (saglik_yapilis) { let d = new Date(saglik_yapilis); d.setFullYear(d.getFullYear() + db.ayar.saglikYil); saglik = d.toISOString().slice(0, 10); }
 
-            let egitim = '';
-            if (egitim_yapilis) {
-              let d = new Date(egitim_yapilis);
-              d.setFullYear(d.getFullYear() + db.ayar.egitimYil);
-              egitim = d.toISOString().slice(0, 10);
-            }
-
-            let saglik = '';
-            if (saglik_yapilis) {
-              let d = new Date(saglik_yapilis);
-              d.setFullYear(d.getFullYear() + db.ayar.saglikYil);
-              saglik = d.toISOString().slice(0, 10);
-            }
-
-            db.p.push({
-              ad: String(ad).trim(),
-              tc,
-              gorev: String(gorev).trim(),
-              ise_baslama,
-              egitim_yapilis,
-              egitim,
-              saglik_yapilis,
-              saglik,
-              evrak_yolu: String(evrak_yolu).trim()
-            });
-
+            db.p.push({ ad: String(ad).trim(), tc, gorev: String(gorev).trim(), ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu, sonSezon: 'yok' });
             eklenenSayisi++;
           });
-
-          sync();
-          personelCiz();
-          alert(`Tebrikler! Toplam ${eklenenSayisi} personel Excel'den başarıyla aktarıldı.`);
-          event.target.value = '';
-        } catch (err) {
-          console.error(err);
-          alert("Excel okunurken hata oluştu. Formatı kontrol edin.");
-        }
+          sync(); personelCiz(); alert(`${eklenenSayisi} personel Excel'den yüklendi.`); event.target.value = '';
+        } catch (err) { alert("Excel okunurken hata oluştu."); }
       };
       reader.readAsArrayBuffer(file);
     }
 
     function excelIndir() {
       const wb = XLSX.utils.book_new();
-      if(db.p.length > 0) {
-        const pRapor = db.p.map(x => ({
-          "T.C. Kimlik No": x.tc || '',
-          "Adı Soyadı": x.ad || '',
-          "Görevi": x.gorev || '',
-          "İşe Başlama": trTarih(x.ise_baslama),
-          "İSG Eğitimi Bitiş": trTarih(x.egitim),
-          "Periyodik Muayene Bitiş": trTarih(x.saglik),
-          "Evrak Yolu": x.evrak_yolu || ''
-        }));
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pRapor), "Personel");
-      }
-      if(db.kkd.length > 0) {
-        const kkdRapor = db.kkd.map(x => ({
-          "Personel": x.personel,
-          "Kategori": x.kategori === 'kis' ? 'Kışlık' : (x.kategori === 'yaz' ? 'Yazlık' : 'Standart KKD'),
-          "Donanım / Kıyafet": x.tur,
-          "Beden": x.beden || '',
-          "Adet": x.adet || 1,
-          "Veriliş Tarihi": trTarih(x.verilis),
-          "Yenileme Tarihi": trTarih(x.degisim),
-          "Zimmet Tutanağı Yolu": x.evrak_yolu || ''
-        }));
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(kkdRapor), "KKD_Kiyafet");
-      }
-      if(db.s.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.s), "Sertifikalar");
-      if(db.dof.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.dof), "DOF");
+      if(db.p.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.p), "Personel");
+      if(db.kkd.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.kkd), "KKD_Kiyafet");
       XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
     }
 
     function cizimlerinHepsiniYenile() {
-      sinifSec(db.ayar.sinif);
-      updateHeaderBadge();
       personelCiz(); sertifikaCiz(); kkdCiz(); dofCiz(); izinCiz(); kazaCiz(); updateMetrics(); hesaplaIstatistik();
     }
 
