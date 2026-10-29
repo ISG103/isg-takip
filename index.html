@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECE TRAFO - İSG Yönetim Bilgi Sistemi</title>
+  <title>ECE EGE YAPI - İSG Yönetim Bilgi Sistemi</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -97,8 +97,8 @@
 <body>
   <aside>
     <div class="brand-box">
-      <img src="ece_logo.png" alt="ECE TRAFO" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
-      <div id="logo-fallback" style="display:none; font-size: 1.3rem; font-weight:900; color:#0f172a;">ECE TRAFO</div>
+      <img src="ece_logo.png" alt="ECE EGE YAPI" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+      <div id="logo-fallback" style="display:none; font-size: 1.15rem; font-weight:900; color:#0f172a;">ECE EGE YAPI A.Ş.</div>
       <div class="brand-portal-title">İSG YÖNETİM PORTALI</div>
     </div>
     <ul class="nav-list">
@@ -232,7 +232,7 @@
                 <th>Mevsim</th>
                 <th>Kıyafet / Donanım</th>
                 <th>Beden & Adet</th>
-                <th>Veriliş Tarihi</th>
+                <th>Teslim / Veriliş Tarihi</th>
                 <th>Yenileme Tarihi</th>
                 <th>Durum</th>
                 <th style="text-align:center;">İşlem</th>
@@ -275,7 +275,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL KAYIT & YENİ KIYAFET LİSTELERİ -->
+  <!-- MODAL: PERSONEL KAYIT & KIYAFET DAĞITIM (TESLİM TARİHİ EKLENDİ) -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -324,11 +324,13 @@
         <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
       </div>
 
-      <!-- KIYAFET DAĞITIM LİSTESİ -->
+      <!-- KIYAFET DAĞITIM LİSTESİ & TESLİM TARİHİ -->
       <div style="border: 2px solid #cbd5e1; padding: 14px; border-radius: 8px; margin-top: 14px; background: #fafafa;">
-        <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: block;">
-          <i class="fa-solid fa-shirt"></i> Personele Kıyafet & Donanım Dağıtılacak mı?
-        </label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+          <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom:0;">
+            <i class="fa-solid fa-shirt"></i> Personele Kıyafet & Donanım Dağıtılacak mı?
+          </label>
+        </div>
         
         <div class="season-selector">
           <div class="season-radio-box selected-kis" id="btn_secim_kis" onclick="mevsimSecimiYap('kis')">
@@ -340,6 +342,14 @@
           <div class="season-radio-box" id="btn_secim_yok" onclick="mevsimSecimiYap('yok')">
             <i class="fa-solid fa-ban"></i> Kıyafet Yok
           </div>
+        </div>
+
+        <!-- TESLİM TARİHİ SEÇİM ALANI -->
+        <div id="kutu_teslim_tarihi" style="background:#e0f2fe; border:1px solid #bae6fd; padding:10px; border-radius:6px; margin-bottom:12px; display:flex; align-items:center; gap:12px;">
+          <label style="font-weight:700; color:#0369a1; font-size:0.85rem; margin-bottom:0;">
+            <i class="fa-regular fa-calendar-check"></i> Kıyafet Teslim / Dağıtım Tarihi:
+          </label>
+          <input type="date" id="p_kiyafet_teslim_tarihi" style="padding:4px 8px; border:1px solid #0284c7; border-radius:4px; font-weight:600; width:170px;">
         </div>
 
         <!-- YENİLENEN KIŞLIK LİSTESİ -->
@@ -420,16 +430,16 @@
     </div>
   </div>
 
-  <!-- YAZDIRMA ALANI (RESMİ ZİMMET & TESLİM TUTANAĞI) -->
+  <!-- YAZDIRMA ALANI (RESMİ ECE EGE YAPI A.Ş. ZİMMET TUTANAĞI) -->
   <div id="print-area" style="display:none; padding: 40px; font-family: 'Segoe UI', Arial, sans-serif; color: #000; background: white;">
     <div style="border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <h2 style="font-size: 1.35rem; font-weight: 900; margin: 0;">ECE TRAFO SAN. VE TİC. A.Ş.</h2>
+        <h2 style="font-size: 1.35rem; font-weight: 900; margin: 0;">ECE EGE YAPI A.Ş.</h2>
         <div style="font-size: 0.9rem; font-weight: 700; color: #444; margin-top: 4px;">KİŞİSEL KORUYUCU DONANIM (KKD) VE İŞ KIYAFETİ TESLİM - ZİMMET TUTANAĞI</div>
       </div>
       <div style="text-align: right; font-size: 0.85rem;">
         <div><strong>Form No:</strong> İSG-FRM-08</div>
-        <div id="print_tarih">Tarih: </div>
+        <div id="print_tarih">Teslim Tarihi: </div>
       </div>
     </div>
 
@@ -595,15 +605,19 @@
 
       document.getElementById('kutu_kislik').classList.add('hidden');
       document.getElementById('kutu_yazlik').classList.add('hidden');
+      const kutuTarih = document.getElementById('kutu_teslim_tarihi');
 
       if (tur === 'kis') {
         document.getElementById('btn_secim_kis').classList.add('selected-kis');
         document.getElementById('kutu_kislik').classList.remove('hidden');
+        if (kutuTarih) kutuTarih.classList.remove('hidden');
       } else if (tur === 'yaz') {
         document.getElementById('btn_secim_yaz').classList.add('selected-yaz');
         document.getElementById('kutu_yazlik').classList.remove('hidden');
+        if (kutuTarih) kutuTarih.classList.remove('hidden');
       } else {
         document.getElementById('btn_secim_yok').classList.add('selected-yok');
+        if (kutuTarih) kutuTarih.classList.add('hidden');
       }
     }
 
@@ -705,7 +719,9 @@
       document.getElementById('p_ad').value = '';
       document.getElementById('p_tc').value = '';
       document.getElementById('p_gorev').value = '';
-      document.getElementById('p_ise_baslama').value = new Date().toISOString().slice(0, 10);
+      const bugun = new Date().toISOString().slice(0, 10);
+      document.getElementById('p_ise_baslama').value = bugun;
+      document.getElementById('p_kiyafet_teslim_tarihi').value = bugun; // Varsayılan bugün
       document.getElementById('p_egitim_yapilis').value = '';
       document.getElementById('p_egitim').value = '';
       document.getElementById('p_saglik_yapilis').value = '';
@@ -733,6 +749,10 @@
       document.getElementById('p_saglik').value = p.saglik || '';
       document.getElementById('p_evrak_yolu').value = p.evrak_yolu || '';
 
+      // Teslim tarihi: bu personelin daha önceki zimmetinden veya işe başlama tarihinden al
+      const mevcutZimmet = db.kkd.find(k => k.personel.trim().toLowerCase() === p.ad.trim().toLowerCase());
+      document.getElementById('p_kiyafet_teslim_tarihi').value = (mevcutZimmet && mevcutZimmet.verilis) ? mevcutZimmet.verilis : (p.ise_baslama || new Date().toISOString().slice(0, 10));
+
       mevsimSecimiYap(p.sonSezon || 'yok');
       openModal('modal-personel');
     }
@@ -748,6 +768,7 @@
       const saglik_yapilis = document.getElementById('p_saglik_yapilis').value;
       const saglik = document.getElementById('p_saglik').value;
       const evrak_yolu = document.getElementById('p_evrak_yolu').value.trim();
+      const teslimTarihi = document.getElementById('p_kiyafet_teslim_tarihi').value || ise_baslama || new Date().toISOString().slice(0, 10);
       
       if(!ad) return alert("Personel adı boş bırakılamaz.");
 
@@ -761,43 +782,42 @@
         db.p.push(item);
       }
 
-      // Yeni Kıyafet Kalemleriyle Zimmet Listesini Oluşturma
+      // Kıyafetleri Kullanıcının Seçtiği Teslim Tarihi ile Kaydetme
       const hedefAd = eskiAd || ad;
       if (secilenMevsim !== 'yok') {
         db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== hedefAd.trim().toLowerCase());
-        const verilisTarihi = ise_baslama || new Date().toISOString().slice(0, 10);
-        let bitisD = new Date(verilisTarihi);
+        let bitisD = new Date(teslimTarihi);
         bitisD.setFullYear(bitisD.getFullYear() + 1);
         const bitisStr = bitisD.toISOString().slice(0, 10);
 
         if (secilenMevsim === 'kis') {
           if (document.getElementById('chk_kis_mont').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Mont', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Mont', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_kis_polar_ferm').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Fermuarlı Polar', beden: document.getElementById('beden_kis_polar_ferm').value, adet: parseInt(document.getElementById('adet_kis_polar_ferm').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Fermuarlı Polar', beden: document.getElementById('beden_kis_polar_ferm').value, adet: parseInt(document.getElementById('adet_kis_polar_ferm').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_kis_polar_uzun').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Uzun Kollu Polar', beden: document.getElementById('beden_kis_polar_uzun').value, adet: parseInt(document.getElementById('adet_kis_polar_uzun').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Uzun Kollu Polar', beden: document.getElementById('beden_kis_polar_uzun').value, adet: parseInt(document.getElementById('adet_kis_polar_uzun').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_kis_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_kis_ayakkabi').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_kis_ayakkabi').value, adet: parseInt(document.getElementById('adet_kis_ayakkabi').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_kis_ayakkabi').value, adet: parseInt(document.getElementById('adet_kis_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
         } else if (secilenMevsim === 'yaz') {
           if (document.getElementById('chk_yaz_kisa_tshirt').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Kısa Kollu Tişört', beden: document.getElementById('beden_yaz_kisa_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_kisa_tshirt').value)||2, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Kısa Kollu Tişört', beden: document.getElementById('beden_yaz_kisa_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_kisa_tshirt').value)||2, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_yaz_uzun_tshirt').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Uzun Kollu Tişört', beden: document.getElementById('beden_yaz_uzun_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_uzun_tshirt').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Uzun Kollu Tişört', beden: document.getElementById('beden_yaz_uzun_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_uzun_tshirt').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_yaz_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_yaz_ayakkabi').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: teslimTarihi, degisim: bitisStr });
           }
         }
       }
@@ -806,7 +826,7 @@
       personelCiz();
       kkdCiz();
       closeModal('modal-personel');
-      alert(`${ad} personeli ve kıyafet zimmetleri kaydedildi!`);
+      alert(`${ad} personeli ve kıyafet zimmetleri (${trTarih(teslimTarihi)} teslim tarihiyle) kaydedildi!`);
     }
 
     // ================= RESMİ ZİMMET TUTANAĞI YAZDIRMA =================
@@ -819,7 +839,8 @@
         return alert("Bu personele ait kayıtlı kıyafet / KKD bulunamadı. Düzenle butonundan kıyafet seçip kaydedin.");
       }
 
-      document.getElementById('print_tarih').innerText = "Tarih: " + (malzemeler[0].verilis ? trTarih(malzemeler[0].verilis) : trTarih(new Date().toISOString().slice(0, 10)));
+      const teslimTarihi = malzemeler[0].verilis ? trTarih(malzemeler[0].verilis) : trTarih(new Date().toISOString().slice(0, 10));
+      document.getElementById('print_tarih').innerText = "Teslim Tarihi: " + teslimTarihi;
       document.getElementById('print_ad').innerText = p.ad || '-';
       document.getElementById('print_tc').innerText = p.tc || '-';
       document.getElementById('print_gorev').innerText = p.gorev || '-';
@@ -1000,7 +1021,7 @@
             if (egitim_yapilis) { let d = new Date(egitim_yapilis); d.setFullYear(d.getFullYear() + db.ayar.egitimYil); egitim = d.toISOString().slice(0, 10); }
             if (saglik_yapilis) { let d = new Date(saglik_yapilis); d.setFullYear(d.getFullYear() + db.ayar.saglikYil); saglik = d.toISOString().slice(0, 10); }
 
-            db.p.push({ ad: String(ad).trim(), tc, gorev, ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu, sonSezon: 'yok' });
+            db.p.push({ ad: String(ad).trim(), tc, gorev: String(gorev).trim(), ise_baslama, egitim_yapilis, egitim, saglik_yapilis, saglik, evrak_yolu, sonSezon: 'yok' });
             eklenenSayisi++;
           });
           sync(); personelCiz(); alert(`${eklenenSayisi} personel Excel'den yüklendi.`); event.target.value = '';
@@ -1013,7 +1034,7 @@
       const wb = XLSX.utils.book_new();
       if(db.p.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.p), "Personel");
       if(db.kkd.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(db.kkd), "KKD_Kiyafet");
-      XLSX.writeFile(wb, `ECE_TRAFO_ISG.xlsx`);
+      XLSX.writeFile(wb, `ECE_EGE_YAPI_ISG.xlsx`);
     }
 
     function cizimlerinHepsiniYenile() {
