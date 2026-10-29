@@ -230,7 +230,7 @@
               <tr>
                 <th>Personel Adı</th>
                 <th>Mevsim</th>
-                <th>Kıyafet / KKD</th>
+                <th>Kıyafet / Donanım</th>
                 <th>Beden & Adet</th>
                 <th>Veriliş Tarihi</th>
                 <th>Yenileme Tarihi</th>
@@ -275,7 +275,7 @@
     </div>
   </main>
 
-  <!-- MODAL: PERSONEL KAYIT & MEVSİMSEL KIYAFET SEÇİMİ (BEDEN + ADET ENTEGRELİ) -->
+  <!-- MODAL: PERSONEL KAYIT & YENİ KIYAFET LİSTELERİ -->
   <div class="modal" id="modal-personel">
     <div class="modal-content">
       <div class="modal-header">
@@ -324,7 +324,7 @@
         <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
       </div>
 
-      <!-- KIYAFET DAĞITIM SEÇENEĞİ (BEDEN + ADET KONTROLLÜ) -->
+      <!-- KIYAFET DAĞITIM LİSTESİ -->
       <div style="border: 2px solid #cbd5e1; padding: 14px; border-radius: 8px; margin-top: 14px; background: #fafafa;">
         <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; display: block;">
           <i class="fa-solid fa-shirt"></i> Personele Kıyafet & Donanım Dağıtılacak mı?
@@ -342,73 +342,73 @@
           </div>
         </div>
 
-        <!-- KIŞLIK LİSTESİ -->
+        <!-- YENİLENEN KIŞLIK LİSTESİ -->
         <div id="kutu_kislik">
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_kis_mont" checked> 🧥 Kışlık Su Geçirmez İş Montu</label>
+            <label><input type="checkbox" id="chk_kis_mont" checked> 🧥 Kışlık Mont</label>
             <div class="kiyafet-row-controls">
               <select id="beden_kis_mont"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
               <input type="number" id="adet_kis_mont" value="1" min="1" max="10" title="Adet"> Adet
             </div>
           </div>
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_kis_polar" checked> 🧣 Kışlık Fermuarlı Polar</label>
+            <label><input type="checkbox" id="chk_kis_polar_ferm" checked> 🧣 Kışlık Fermuarlı Polar</label>
             <div class="kiyafet-row-controls">
-              <select id="beden_kis_polar"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
-              <input type="number" id="adet_kis_polar" value="1" min="1" max="10" title="Adet"> Adet
+              <select id="beden_kis_polar_ferm"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
+              <input type="number" id="adet_kis_polar_ferm" value="1" min="1" max="10" title="Adet"> Adet
             </div>
           </div>
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_kis_pantolon" checked> 👖 Kışlık Kalın İş Pantolonu</label>
+            <label><input type="checkbox" id="chk_kis_polar_uzun" checked> 👕 Kışlık Uzun Kollu Polar</label>
+            <div class="kiyafet-row-controls">
+              <select id="beden_kis_polar_uzun"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
+              <input type="number" id="adet_kis_polar_uzun" value="1" min="1" max="10" title="Adet"> Adet
+            </div>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_kis_pantolon" checked> 👖 Kışlık İş Pantolonu</label>
             <div class="kiyafet-row-controls">
               <select id="beden_kis_pantolon"><option>44</option><option>46</option><option selected>48</option><option>50</option><option>52</option><option>54</option></select>
               <input type="number" id="adet_kis_pantolon" value="1" min="1" max="10" title="Adet"> Adet
             </div>
           </div>
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_kis_bot" checked> 🥾 S3 Kışlık Çelik Burunlu Bot</label>
+            <label><input type="checkbox" id="chk_kis_ayakkabi" checked> 🥾 İş Ayakkabısı</label>
             <div class="kiyafet-row-controls">
-              <select id="beden_kis_bot"><option>40</option><option>41</option><option selected>42</option><option>43</option><option>44</option><option>45</option></select>
-              <input type="number" id="adet_kis_bot" value="1" min="1" max="10" title="Adet"> Çift
-            </div>
-          </div>
-          <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_kis_iclik"> 🧦 Termal İçlik Takımı</label>
-            <div class="kiyafet-row-controls">
-              <select id="beden_kis_iclik"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
-              <input type="number" id="adet_kis_iclik" value="1" min="1" max="10" title="Adet"> Takım
+              <select id="beden_kis_ayakkabi"><option>40</option><option>41</option><option selected>42</option><option>43</option><option>44</option><option>45</option></select>
+              <input type="number" id="adet_kis_ayakkabi" value="1" min="1" max="10" title="Çift"> Çift
             </div>
           </div>
         </div>
 
-        <!-- YAZLIK LİSTESİ -->
+        <!-- YENİLENEN YAZLIK LİSTESİ -->
         <div id="kutu_yazlik" class="hidden">
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_yaz_tisort" checked> 👕 Yazlık Polo Yaka Tişört</label>
+            <label><input type="checkbox" id="chk_yaz_kisa_tshirt" checked> 👕 Kısa Kollu Tişört</label>
             <div class="kiyafet-row-controls">
-              <select id="beden_yaz_tisort"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
-              <input type="number" id="adet_yaz_tisort" value="2" min="1" max="10" title="Adet"> Adet
+              <select id="beden_yaz_kisa_tshirt"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
+              <input type="number" id="adet_yaz_kisa_tshirt" value="2" min="1" max="10" title="Adet"> Adet
             </div>
           </div>
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_yaz_pantolon" checked> 👖 Yazlık İnce İş Pantolonu</label>
+            <label><input type="checkbox" id="chk_yaz_uzun_tshirt" checked> 👔 Uzun Kollu Tişört</label>
             <div class="kiyafet-row-controls">
-              <select id="beden_yaz_pantolon"><option>44</option><option>46</option><option selected>48</option><option>50</option><option>52</option></select>
+              <select id="beden_yaz_uzun_tshirt"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option><option>3XL</option></select>
+              <input type="number" id="adet_yaz_uzun_tshirt" value="1" min="1" max="10" title="Adet"> Adet
+            </div>
+          </div>
+          <div class="kiyafet-row">
+            <label><input type="checkbox" id="chk_yaz_pantolon" checked> 👖 Yazlık İş Pantolonu</label>
+            <div class="kiyafet-row-controls">
+              <select id="beden_yaz_pantolon"><option>44</option><option>46</option><option selected>48</option><option>50</option><option>52</option><option>54</option></select>
               <input type="number" id="adet_yaz_pantolon" value="1" min="1" max="10" title="Adet"> Adet
             </div>
           </div>
           <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_yaz_yelek" checked> 🦺 Çok Cepli Yazlık İş Yeleği</label>
-            <div class="kiyafet-row-controls">
-              <select id="beden_yaz_yelek"><option>M</option><option selected>L</option><option>XL</option><option>XXL</option></select>
-              <input type="number" id="adet_yaz_yelek" value="1" min="1" max="10" title="Adet"> Adet
-            </div>
-          </div>
-          <div class="kiyafet-row">
-            <label><input type="checkbox" id="chk_yaz_ayakkabi" checked> 👟 S3 Nefes Alan Yazlık Ayakkabı</label>
+            <label><input type="checkbox" id="chk_yaz_ayakkabi" checked> 👟 İş Ayakkabısı</label>
             <div class="kiyafet-row-controls">
               <select id="beden_yaz_ayakkabi"><option>40</option><option>41</option><option selected>42</option><option>43</option><option>44</option><option>45</option></select>
-              <input type="number" id="adet_yaz_ayakkabi" value="1" min="1" max="10" title="Adet"> Çift
+              <input type="number" id="adet_yaz_ayakkabi" value="1" min="1" max="10" title="Çift"> Çift
             </div>
           </div>
         </div>
@@ -761,7 +761,7 @@
         db.p.push(item);
       }
 
-      // Kıyafetleri Beden ve Adetleriyle Birlikte Kaydetme
+      // Yeni Kıyafet Kalemleriyle Zimmet Listesini Oluşturma
       const hedefAd = eskiAd || ad;
       if (secilenMevsim !== 'yok') {
         db.kkd = db.kkd.filter(k => k.personel.trim().toLowerCase() !== hedefAd.trim().toLowerCase());
@@ -772,32 +772,32 @@
 
         if (secilenMevsim === 'kis') {
           if (document.getElementById('chk_kis_mont').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Su Geçirmez İş Montu', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Mont', beden: document.getElementById('beden_kis_mont').value, adet: parseInt(document.getElementById('adet_kis_mont').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
-          if (document.getElementById('chk_kis_polar').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Polar Hırka', beden: document.getElementById('beden_kis_polar').value, adet: parseInt(document.getElementById('adet_kis_polar').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+          if (document.getElementById('chk_kis_polar_ferm').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Fermuarlı Polar', beden: document.getElementById('beden_kis_polar_ferm').value, adet: parseInt(document.getElementById('adet_kis_polar_ferm').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_kis_polar_uzun').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Uzun Kollu Polar', beden: document.getElementById('beden_kis_polar_uzun').value, adet: parseInt(document.getElementById('adet_kis_polar_uzun').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_kis_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık Kalın İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Kışlık İş Pantolonu', beden: document.getElementById('beden_kis_pantolon').value, adet: parseInt(document.getElementById('adet_kis_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
-          if (document.getElementById('chk_kis_bot').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'S3 Kışlık Çelik Burunlu Bot', beden: document.getElementById('beden_kis_bot').value, adet: parseInt(document.getElementById('adet_kis_bot').value)||1, verilis: verilisTarihi, degisim: bitisStr });
-          }
-          if (document.getElementById('chk_kis_iclik').checked) {
-            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'Termal İçlik Takımı', beden: document.getElementById('beden_kis_iclik').value, adet: parseInt(document.getElementById('adet_kis_iclik').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+          if (document.getElementById('chk_kis_ayakkabi').checked) {
+            db.kkd.push({ personel: ad, kategori: 'kis', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_kis_ayakkabi').value, adet: parseInt(document.getElementById('adet_kis_ayakkabi').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
         } else if (secilenMevsim === 'yaz') {
-          if (document.getElementById('chk_yaz_tisort').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Tişörtü (Polo)', beden: document.getElementById('beden_yaz_tisort').value, adet: parseInt(document.getElementById('adet_yaz_tisort').value)||2, verilis: verilisTarihi, degisim: bitisStr });
+          if (document.getElementById('chk_yaz_kisa_tshirt').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Kısa Kollu Tişört', beden: document.getElementById('beden_yaz_kisa_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_kisa_tshirt').value)||2, verilis: verilisTarihi, degisim: bitisStr });
+          }
+          if (document.getElementById('chk_yaz_uzun_tshirt').checked) {
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Uzun Kollu Tişört', beden: document.getElementById('beden_yaz_uzun_tshirt').value, adet: parseInt(document.getElementById('adet_yaz_uzun_tshirt').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_yaz_pantolon').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İnce İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
-          }
-          if (document.getElementById('chk_yaz_yelek').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Çok Cepli Yazlık İş Yeleği', beden: document.getElementById('beden_yaz_yelek').value, adet: parseInt(document.getElementById('adet_yaz_yelek').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'Yazlık İş Pantolonu', beden: document.getElementById('beden_yaz_pantolon').value, adet: parseInt(document.getElementById('adet_yaz_pantolon').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
           if (document.getElementById('chk_yaz_ayakkabi').checked) {
-            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'S3 Nefes Alan Yazlık Ayakkabı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: verilisTarihi, degisim: bitisStr });
+            db.kkd.push({ personel: ad, kategori: 'yaz', tur: 'İş Ayakkabısı', beden: document.getElementById('beden_yaz_ayakkabi').value, adet: parseInt(document.getElementById('adet_yaz_ayakkabi').value)||1, verilis: verilisTarihi, degisim: bitisStr });
           }
         }
       }
@@ -834,7 +834,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">${i + 1}</td>
             <td style="border: 1px solid #000; padding: 6px; font-weight: bold;">${m.tur}</td>
             <td style="border: 1px solid #000; padding: 6px;">${m.beden || '-'}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${m.adet || 1} Adet</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${m.adet || 1} ${m.tur.includes('Ayakkabı') ? 'Çift' : 'Adet'}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">Kullanılmamış / Sıfır</td>
           </tr>
         `;
@@ -861,7 +861,7 @@
             <td><strong>${k.personel}</strong></td>
             <td>${katBadge}</td>
             <td><strong>${k.tur}</strong></td>
-            <td><strong>${k.beden || '-'}</strong> (${k.adet || 1} Adet)</td>
+            <td><strong>${k.beden || '-'}</strong> (${k.adet || 1} ${k.tur.includes('Ayakkabı') ? 'Çift' : 'Adet'})</td>
             <td>${trTarih(k.verilis)}</td>
             <td><strong>${trTarih(k.degisim)}</strong></td>
             <td><span class="badge ${d.cls}">${d.text}</span></td>
