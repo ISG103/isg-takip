@@ -34,6 +34,9 @@
     header { background: white; padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .plant-badge { background: #fef3c7; border: 1px solid #fde68a; color: #b45309; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
     .cloud-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; color: #0369a1; }
+    .auth-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; }
+    .auth-badge.locked { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .auth-badge.unlocked { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
     .content { padding: 24px 28px; flex: 1; }
     
     .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 14px; }
@@ -41,7 +44,6 @@
     .metric-num { font-size: 1.45rem; font-weight: 800; margin-top: 2px; }
     .metric-title { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-    /* YETKİNLİK SAYIM KARTLARI */
     .skills-summary-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
     .skill-stat-card { background: white; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 14px; border-left: 5px solid #cbd5e1; }
     .skill-stat-card.red { border-left-color: #ef4444; background: #fff5f5; }
@@ -78,7 +80,6 @@
     .badge-season-yaz { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
     .badge-season-ozel { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-    /* ÖZEL RENKLİ SERTİFİKA ROZETLERİ */
     .cert-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2px; margin: 2px 0; }
     .cert-ilkyardim { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
     .cert-vinc { background: #ffedd5; color: #c2410c; border: 1px solid #fdba74; }
@@ -148,6 +149,10 @@
         <div style="display:flex; gap:8px; margin-top:4px;">
           <div class="plant-badge" id="headerBadge"><i class="fa-solid fa-shield-halved"></i> Aktif Sınıf: TEHLİKELİ (Eğitim: 2 Yıl / Muayene: 3 Yıl)</div>
           <div class="cloud-badge" id="cloudStatus"><i class="fa-solid fa-cloud-arrow-up"></i> Bulut Hazır</div>
+          <!-- YÖNETİCİ KİLİT BUTONU -->
+          <div class="auth-badge locked" id="authBadge" onclick="toggleYoneticiModu()">
+            <i class="fa-solid fa-lock" id="authIcon"></i> <span id="authText">Salt Okunur (Görüntüleme)</span>
+          </div>
         </div>
       </div>
       <div style="display:flex; gap:8px;">
@@ -199,8 +204,8 @@
           <div style="display:flex; gap:8px; align-items:center;">
             <button class="btn btn-outline" onclick="ornekSablonIndir()"><i class="fa-solid fa-download"></i> Şablon Excel İndir</button>
             <input type="file" id="excelYukleInput" accept=".xlsx, .xls" style="display:none;" onchange="excelHazirla(event)">
-            <button class="btn btn-excel" onclick="document.getElementById('excelYukleInput').click()"><i class="fa-solid fa-file-import"></i> Excel'den Güncelle</button>
-            <button class="btn btn-primary" onclick="openPersonelModal()"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
+            <button class="btn btn-excel" onclick="guvenliGorev('excel_yukle')"><i class="fa-solid fa-file-import"></i> Excel'den Güncelle</button>
+            <button class="btn btn-primary" onclick="guvenliGorev('yeni_personel')"><i class="fa-solid fa-plus"></i> Yeni Personel</button>
           </div>
         </div>
         <div class="table-container">
@@ -252,7 +257,7 @@
             <i class="fa-regular fa-circle" id="check_az_tehlikeli" style="color:#cbd5e1; font-size:1.3rem;"></i>
           </div>
 
-          <button class="btn btn-primary" style="margin-top:14px; width:100%; justify-content:center;" onclick="sinifAyariKaydet()">
+          <button class="btn btn-primary" style="margin-top:14px; width:100%; justify-content:center;" onclick="guvenliGorev('sinif_kaydet')">
             <i class="fa-solid fa-floppy-disk"></i> Seçilen Sınıfı Aktif Yap ve Kaydet
           </button>
         </div>
@@ -261,7 +266,7 @@
       <!-- 3. SERTİFİKA (İLK YARDIM & MYK BELGELERİ) -->
       <section id="sec-sertifika" class="hidden">
         <div class="table-actions">
-          <button class="btn btn-primary" onclick="openModal('modal-sertifika')"><i class="fa-solid fa-plus"></i> Yeni Belge / Sertifika Ekle</button>
+          <button class="btn btn-primary" onclick="guvenliGorev('yeni_sertifika')"><i class="fa-solid fa-plus"></i> Yeni Belge / Sertifika Ekle</button>
         </div>
         <div class="table-container">
           <table>
@@ -307,19 +312,19 @@
 
       <!-- 5. DÖF -->
       <section id="sec-dof" class="hidden">
-        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-dof')"><i class="fa-solid fa-plus"></i> DÖF Aç</button></div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="guvenliGorev('dof_ac')"><i class="fa-solid fa-plus"></i> DÖF Aç</button></div>
         <div class="table-container"><table><thead><tr><th>Tarih</th><th>Bölüm</th><th>Uygunsuzluk</th><th>Aksiyon</th><th>Sorumlu</th><th>Statü</th><th>İşlem</th></tr></thead><tbody id="dofTablo"></tbody></table></div>
       </section>
 
       <!-- 6. İŞ İZNİ -->
       <section id="sec-izin" class="hidden">
-        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-izin')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button></div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="guvenliGorev('izin_ac')"><i class="fa-solid fa-plus"></i> İş İzni Aç</button></div>
         <div class="table-container"><table><thead><tr><th>İzin No</th><th>Tür</th><th>Alan</th><th>Personel</th><th>Statü</th><th>İşlem</th></tr></thead><tbody id="izinTablo"></tbody></table></div>
       </section>
 
       <!-- 7. KAZALAR -->
       <section id="sec-kazalar" class="hidden">
-        <div class="table-actions"><button class="btn btn-primary" onclick="openModal('modal-kaza')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button></div>
+        <div class="table-actions"><button class="btn btn-primary" onclick="guvenliGorev('kaza_bildir')"><i class="fa-solid fa-plus"></i> Kaza Bildir</button></div>
         <div class="table-container"><table><thead><tr><th>Tarih</th><th>Kazazede</th><th>Tür</th><th>Kayıp Gün</th><th>İşlem</th></tr></thead><tbody id="kazaTablo"></tbody></table></div>
       </section>
 
@@ -386,7 +391,6 @@
         <input type="text" id="p_evrak_yolu" placeholder="Örn: \\SUNUCU\ISG_Evraklari\Adem_Bilal">
       </div>
 
-      <!-- KIYAFET DAĞITIM LİSTESİ -->
       <div style="border: 2px solid #cbd5e1; padding: 14px; border-radius: 8px; margin-top: 14px; background: #fafafa;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
           <label style="font-size: 0.9rem; font-weight: 800; color: #0f172a; margin-bottom:0;">
@@ -413,7 +417,6 @@
           <input type="date" id="p_kiyafet_teslim_tarihi" style="padding:4px 8px; border:1px solid #0284c7; border-radius:4px; font-weight:600; width:170px;">
         </div>
 
-        <!-- KIŞLIK LİSTESİ -->
         <div id="kutu_kislik">
           <div class="kiyafet-row">
             <label><input type="checkbox" id="chk_kis_mont" checked> 🧥 Kışlık Mont</label>
@@ -452,7 +455,6 @@
           </div>
         </div>
 
-        <!-- YAZLIK LİSTESİ -->
         <div id="kutu_yazlik" class="hidden">
           <div class="kiyafet-row">
             <label><input type="checkbox" id="chk_yaz_kisa_tshirt" checked> 👕 Kısa Kollu Tişört</label>
@@ -485,7 +487,6 @@
         </div>
       </div>
 
-      <!-- GÜNLÜK / HAFTALIK / ÖZEL KKD VE AÇIKLAMA ALANI -->
       <div class="ozel-kkd-box">
         <label style="font-size: 0.88rem; font-weight: 800; color: #854d0e; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
           <i class="fa-solid fa-hand-holding-hand"></i> Günlük / Haftalık / Özel KKD Dağıtımı & Açıklama
@@ -670,6 +671,10 @@
     const MASTER_KEY = '$2a$10$AgSMqKfELFxqPVn8PEo3ie2lsSPAbvq/nawt/ATJSKDHJgJUjPs6u';
     const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
+    // YÖNETİCİ ŞİFRESİ (İSTEDİĞİNİZ ŞİFREYİ BURAYA YAZABİLİRSİNİZ)
+    const YONETICI_SIFRE = "1923";
+    let isYoneticiAktif = false;
+
     let db = {
       p: JSON.parse(localStorage.getItem('isg_p')) || [],
       s: JSON.parse(localStorage.getItem('isg_s')) || [],
@@ -684,6 +689,64 @@
 
     let secilenMevsim = 'kis';
     let yuklenecekGeciciExcelRows = [];
+
+    // GÜVENLİK VE YÖNETİCİ KİLİT MEKANİZMASI
+    function toggleYoneticiModu() {
+      if (isYoneticiAktif) {
+        isYoneticiAktif = false;
+        guncelleAuthBadge();
+        alert("Yönetici oturumu kapatıldı. Sistem 'Salt Okunur' moduna alındı.");
+      } else {
+        const girilen = prompt("Lütfen İSG Yönetici Şifresini Giriniz:");
+        if (girilen === YONETICI_SIFRE) {
+          isYoneticiAktif = true;
+          guncelleAuthBadge();
+          alert("Yönetici girişi başarılı! Tüm düzenleme yetkileri açıldı.");
+        } else if (girilen !== null) {
+          alert("Hatalı şifre! Sadece görüntüleme yapabilirsiniz.");
+        }
+      }
+    }
+
+    function guncelleAuthBadge() {
+      const el = document.getElementById('authBadge');
+      const icon = document.getElementById('authIcon');
+      const txt = document.getElementById('authText');
+      if (isYoneticiAktif) {
+        el.className = 'auth-badge unlocked';
+        icon.className = 'fa-solid fa-lock-open';
+        txt.innerText = 'Yönetici Modu (Yetkili)';
+      } else {
+        el.className = 'auth-badge locked';
+        icon.className = 'fa-solid fa-lock';
+        txt.innerText = 'Salt Okunur (Görüntüleme)';
+      }
+    }
+
+    // Yetki gerektiren işlemleri koruma fonksiyonu
+    function guvenliGorev(islem, parametre) {
+      if (!isYoneticiAktif) {
+        const girilen = prompt("Bu işlem için İSG Yönetici Şifresi gereklidir:\n(Fabrika ortak ağında salt okunur moddasınız)");
+        if (girilen === YONETICI_SIFRE) {
+          isYoneticiAktif = true;
+          guncelleAuthBadge();
+        } else {
+          if (girilen !== null) alert("Yetkisiz erişim: Şifre hatalı!");
+          return;
+        }
+      }
+
+      // Yetki verildiyse ilgili işlemi başlat
+      if (islem === 'yeni_personel') openPersonelModal();
+      else if (islem === 'personel_duzenle') personelDuzenleByIndex(parametre);
+      else if (islem === 'sil') silByIndex(parametre.kat, parametre.idx);
+      else if (islem === 'excel_yukle') document.getElementById('excelYukleInput').click();
+      else if (islem === 'sinif_kaydet') sinifAyariKaydet();
+      else if (islem === 'yeni_sertifika') openModal('modal-sertifika');
+      else if (islem === 'dof_ac') openModal('modal-dof');
+      else if (islem === 'izin_ac') openModal('modal-izin');
+      else if (islem === 'kaza_bildir') openModal('modal-kaza');
+    }
 
     function trTarih(dateStr) {
       if(!dateStr) return '-';
@@ -705,7 +768,6 @@
       return str;
     }
 
-    // TÜRKÇE KARAKTERLERİ DÜZELTEN AKILLI NORMALİZASYON
     function normalizeTr(text) {
       if (!text) return '';
       return String(text)
@@ -716,19 +778,16 @@
         .trim();
     }
 
-    // İLK YARDIMCI KONTROLÜ (YANLIŞLIKLA "USTA YARDIMCISI" OLANLARI ALMAZ)
     function isIlkYardimci(text) {
       const t = normalizeTr(text);
       return t.includes('ilk yardim') || t.includes('ilkyardim');
     }
 
-    // VİNÇ KONTROLÜ
     function isVinc(text) {
       const t = normalizeTr(text);
       return t.includes('vinc') || t.includes('vinç') || t.includes('koprulu') || t.includes('köprülü') || t.includes('tavan');
     }
 
-    // KAYNAK KONTROLÜ
     function isKaynak(text) {
       const t = normalizeTr(text);
       return t.includes('kaynak') || t.includes('kaynakci') || t.includes('kaynakçı');
@@ -876,7 +935,7 @@
       return { text: `Geçerli (${diff} gün)`, cls: "badge-success", diff };
     }
 
-    // SADECE GERÇEK SERTİFİKA KAYITLARINI VE NET GÖREVLERİ SAYAN GÜNCELLENMİŞ MOTOR
+    // YETKİNLİK SAYAÇLARINI GÜNCELLE
     function updateMetrics() {
       document.getElementById('stat_toplam_p').innerText = db.p.length;
       document.getElementById('stat_acik_dof').innerText = db.dof.filter(x => x.statu !== 'Kapatıldı').length;
@@ -892,7 +951,7 @@
       const vincKumesi = new Set();
       const kaynakKumesi = new Set();
 
-      // 1. Sertifikalar sekmesindeki gerçek belgeleri say
+      // Sadece gerçek sertifika sekmesinden say
       db.s.forEach(s => {
         const adNorm = normalizeTr(s.ad);
         if (isIlkYardimci(s.tur)) ilkYardimKumesi.add(adNorm);
@@ -900,10 +959,11 @@
         if (isKaynak(s.tur)) kaynakKumesi.add(adNorm);
       });
 
-      // 2. Personel görev alanından tara (Yalnızca tam unvanlar)
+      // Personel görevinden sadece ilk kelimesi "İlk Yardımcı" olanları tara
       db.p.forEach(p => {
         const adNorm = normalizeTr(p.ad);
-        if (isIlkYardimci(p.gorev)) ilkYardimKumesi.add(adNorm);
+        const gNorm = normalizeTr(p.gorev);
+        if (gNorm.startsWith('ilk yardim') || gNorm.startsWith('ilkyardim')) ilkYardimKumesi.add(adNorm);
         if (isVinc(p.gorev)) vincKumesi.add(adNorm);
         if (isKaynak(p.gorev)) kaynakKumesi.add(adNorm);
       });
@@ -942,7 +1002,8 @@
             badgesArray.push(getCertBadgeHtml(x.tur));
           });
 
-          if (isIlkYardimci(p.gorev) && !badgesArray.some(b => b.includes('İlk Yardımcı'))) {
+          const gNorm = normalizeTr(p.gorev);
+          if ((gNorm.startsWith('ilk yardim') || gNorm.startsWith('ilkyardim')) && !badgesArray.some(b => b.includes('İlk Yardımcı'))) {
             badgesArray.push(getCertBadgeHtml('İlk Yardımcı Sertifikası'));
           }
           if (isVinc(p.gorev) && !badgesArray.some(b => b.includes('Köprülü Vinç'))) {
@@ -975,10 +1036,10 @@
               <button class="btn-action-print" title="Resmi Zimmet Tutanağını Yazdır" onclick="zimmetTutanagiYazdir(${idx})">
                 <i class="fa-solid fa-print"></i> Zimmet Çıktısı
               </button>
-              <button class="btn-action-edit" onclick="personelDuzenleByIndex(${idx})">
+              <button class="btn-action-edit" onclick="guvenliGorev('personel_duzenle', ${idx})">
                 <i class="fa-solid fa-pen-to-square"></i> Düzenle
               </button>
-              <button class="btn-action-del" onclick="silByIndex('p', ${idx})">
+              <button class="btn-action-del" onclick="guvenliGorev('sil', {kat:'p', idx:${idx}})">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </td>
@@ -1204,7 +1265,7 @@
           <td><strong>${trTarih(s.bitis)}</strong></td>
           <td><span class="badge ${d.cls}">${d.text}</span></td>
           <td style="text-align:center;">
-            <button class="btn-action-del" title="Sil" onclick="silByIndex('s', ${idx})"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn-action-del" title="Sil" onclick="guvenliGorev('sil', {kat:'s', idx:${idx}})"><i class="fa-solid fa-trash"></i></button>
           </td>
         </tr>`;
       });
@@ -1254,7 +1315,7 @@
             <td><span class="badge ${d.cls}">${d.text}</span></td>
             <td style="font-size:0.80rem; color:#475569;">${k.aciklama || '-'}</td>
             <td style="text-align:center;">
-              <button class="btn-action-del" title="Sil" onclick="silByIndex('kkd', ${idx})"><i class="fa-solid fa-trash"></i></button>
+              <button class="btn-action-del" title="Sil" onclick="guvenliGorev('sil', {kat:'kkd', idx:${idx}})"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>`;
         }
@@ -1266,7 +1327,7 @@
       const tbody = document.getElementById('dofTablo');
       tbody.innerHTML = '';
       db.dof.forEach((d, idx) => {
-        tbody.innerHTML += `<tr><td>${trTarih(d.tarih)}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn-action-del" onclick="silByIndex('dof', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${trTarih(d.tarih)}</td><td>${d.bolum}</td><td>${d.tespit}</td><td>${d.aksiyon}</td><td>${d.sorumlu}</td><td><span class="badge ${d.statu==='Kapatıldı'?'badge-success':'badge-danger'}">${d.statu}</span></td><td><button class="btn-action-del" onclick="guvenliGorev('sil', {kat:'dof', idx:${idx}})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function dofEkle() {
@@ -1284,7 +1345,7 @@
       const tbody = document.getElementById('izinTablo');
       tbody.innerHTML = '';
       db.izin.forEach((i, idx) => {
-        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn-action-del" onclick="silByIndex('izin', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${i.no}</td><td>${i.tur}</td><td>${i.alan}</td><td>${i.personel}</td><td><span class="badge badge-success">Aktif</span></td><td><button class="btn-action-del" onclick="guvenliGorev('sil', {kat:'izin', idx:${idx}})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function izinEkle() {
@@ -1300,7 +1361,7 @@
       const tbody = document.getElementById('kazaTablo');
       tbody.innerHTML = '';
       db.k.forEach((k, idx) => {
-        tbody.innerHTML += `<tr><td>${trTarih(k.tarih)}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn-action-del" onclick="silByIndex('k', ${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        tbody.innerHTML += `<tr><td>${trTarih(k.tarih)}</td><td>${k.ad}</td><td>${k.tur}</td><td>${k.gun}</td><td><button class="btn-action-del" onclick="guvenliGorev('sil', {kat:'k', idx:${idx}})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
       });
     }
     function kazaEkle() {
