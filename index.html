@@ -705,21 +705,21 @@
       return str;
     }
 
-    // TÜRKÇE KARAKTER DUYARLI AKILLI METİN TEMİZLEYİCİ
+    // TÜRKÇE KARAKTERLERİ DÜZELTEN AKILLI NORMALİZASYON
     function normalizeTr(text) {
       if (!text) return '';
       return String(text)
         .replace(/İ/g, 'i')
-        .replace(/I/g, 'ı')
+        .replace(/I/g, 'i')
         .replace(/ı/g, 'i')
         .toLocaleLowerCase('tr')
         .trim();
     }
 
-    // İLK YARDIM KONTROLÜ (TÜM VARYASYONLAR)
+    // İLK YARDIMCI KONTROLÜ (YANLIŞLIKLA "USTA YARDIMCISI" OLANLARI ALMAZ)
     function isIlkYardimci(text) {
       const t = normalizeTr(text);
-      return t.includes('yardim') || t.includes('yardım') || t.includes('ilkyardim') || t.includes('ilk yardim');
+      return t.includes('ilk yardim') || t.includes('ilkyardim');
     }
 
     // VİNÇ KONTROLÜ
@@ -876,7 +876,7 @@
       return { text: `Geçerli (${diff} gün)`, cls: "badge-success", diff };
     }
 
-    // YETKİNLİK SAYAÇLARINI VE GENEL İSTATİSTİKLERİ GÜNCELLE
+    // SADECE GERÇEK SERTİFİKA KAYITLARINI VE NET GÖREVLERİ SAYAN GÜNCELLENMİŞ MOTOR
     function updateMetrics() {
       document.getElementById('stat_toplam_p').innerText = db.p.length;
       document.getElementById('stat_acik_dof').innerText = db.dof.filter(x => x.statu !== 'Kapatıldı').length;
@@ -888,12 +888,11 @@
       });
       document.getElementById('stat_alarm').innerText = alarm;
 
-      // Kişi bazlı tekil sayım için kümeler (Set)
       const ilkYardimKumesi = new Set();
       const vincKumesi = new Set();
       const kaynakKumesi = new Set();
 
-      // 1. Sertifikalar tablosundan tara
+      // 1. Sertifikalar sekmesindeki gerçek belgeleri say
       db.s.forEach(s => {
         const adNorm = normalizeTr(s.ad);
         if (isIlkYardimci(s.tur)) ilkYardimKumesi.add(adNorm);
@@ -901,7 +900,7 @@
         if (isKaynak(s.tur)) kaynakKumesi.add(adNorm);
       });
 
-      // 2. Personel görev / pozisyonundan da tara (İK listesinden gelen unvanlar için)
+      // 2. Personel görev alanından tara (Yalnızca tam unvanlar)
       db.p.forEach(p => {
         const adNorm = normalizeTr(p.ad);
         if (isIlkYardimci(p.gorev)) ilkYardimKumesi.add(adNorm);
@@ -936,7 +935,6 @@
           const e = getStatus(p.egitim);
           const s = getStatus(p.saglik);
 
-          // Bu personelin sahip olduğu belgeleri çek (Sertifikadan veya görevden)
           const personellerinSertifikalari = db.s.filter(x => normalizeTr(x.ad) === adNorm);
           let badgesArray = [];
 
@@ -944,7 +942,6 @@
             badgesArray.push(getCertBadgeHtml(x.tur));
           });
 
-          // Eğer sertifikada yok ama görevinde ilk yardımcı yazıyorsa rozet bas
           if (isIlkYardimci(p.gorev) && !badgesArray.some(b => b.includes('İlk Yardımcı'))) {
             badgesArray.push(getCertBadgeHtml('İlk Yardımcı Sertifikası'));
           }
